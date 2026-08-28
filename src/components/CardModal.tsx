@@ -150,7 +150,7 @@ export function CardModal({
           role="dialog"
           aria-modal="true"
           aria-labelledby={titleId}
-          className="relative flex h-dvh w-full flex-col overflow-x-hidden overflow-y-auto md:overflow-hidden md:flex-row md:items-stretch"
+          className="relative flex h-dvh w-full flex-col overflow-x-hidden overflow-y-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:flex-row md:items-stretch md:overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Botão Fechar */}
@@ -164,7 +164,7 @@ export function CardModal({
           </button>
 
           {/* Lado Esquerdo: Visual do Card / Pacotinho em Destaque */}
-          <div className="relative flex shrink-0 items-center justify-center overflow-hidden bg-transparent px-4 pt-[calc(2.25rem+env(safe-area-inset-top,0px))] pb-3 sm:px-6 sm:py-6 md:w-[min(48vw,460px)] md:flex-col md:px-8 md:py-10">
+          <div className="relative flex shrink-0 items-center justify-center overflow-hidden bg-transparent px-4 pt-[calc(2.5rem+env(safe-area-inset-top,0px))] pb-4 sm:px-6 sm:py-6 md:w-[min(48vw,460px)] md:flex-col md:px-8 md:py-10">
             {/* 1. SE FOR LIMITED EDITION (LE): Ativa Palco EA FC + Interação de Flip para ver versão Regular */}
             {effectiveLe && showArt ? (
               <EaFcStage active={true} isWalkout={isWalkout}>
@@ -218,7 +218,7 @@ export function CardModal({
                   <button
                     type="button"
                     onClick={() => setIsFlipped((f) => !f)}
-                    className="mt-2.5 flex items-center gap-1.5 rounded-full bg-gold/10 px-3 py-1 text-[11px] font-medium text-gold/90 transition hover:bg-gold/20 hover:text-gold"
+                    className="mt-3 flex items-center gap-1.5 rounded-full bg-gold/10 px-3 py-1 text-[11px] font-medium text-gold/90 transition hover:bg-gold/20 hover:text-gold"
                   >
                     <Icon name="sparkles" size={12} />
                     <span>
@@ -283,13 +283,13 @@ export function CardModal({
 
           {/* Lado Direito: Informações e Ações com visual adaptativo para LE */}
           <div
-            className={`flex min-h-0 flex-1 flex-col justify-between px-4 pt-3 pb-[max(1.25rem,env(safe-area-inset-bottom,0px))] sm:px-6 sm:py-6 md:border-l md:px-10 md:py-10 ${
+            className={`flex flex-col shrink-0 gap-4 px-4 pt-2 pb-[max(2.5rem,env(safe-area-inset-bottom,20px))] sm:px-6 sm:py-6 md:min-h-0 md:flex-1 md:shrink md:justify-between md:gap-0 md:border-l md:px-10 md:py-10 md:pb-10 ${
               effectiveLe
                 ? "border-gold/20 bg-gradient-to-b from-[#11120e]/60 via-[#090a09] to-[#050605]"
                 : "border-white/[0.06] bg-[#0a0a0a]"
             }`}
           >
-            <div className="min-h-0 space-y-2.5 sm:space-y-3.5">
+            <div className="space-y-3 sm:space-y-4">
               <div className="flex items-center gap-2">
                 <span className="font-mono text-xs font-bold tracking-widest text-mint">
                   #{publicLabel(card)}
@@ -375,8 +375,8 @@ export function CardModal({
               )}
             </div>
 
-            {/* Ações Inferiores (Sempre bem posicionadas sem sobrepor nada) */}
-            <div className="mt-4 shrink-0 space-y-2 pt-2 sm:mt-6 sm:pt-0">
+            {/* Ações Inferiores (Perfeitamente espaçadas e livres de sobreposição) */}
+            <div className="mt-3 shrink-0 space-y-2 border-t border-white/[0.06] pt-3 sm:mt-6 sm:border-t-0 sm:pt-0">
               {/* Botão para Abrir Pacotinho */}
               {isLive && openingState !== "revealed" && isLoggedIn && (
                 <button
@@ -404,19 +404,19 @@ export function CardModal({
 
               {/* Botão de Baixar Card já Aberto */}
               {showArt && isOwned && (
-                <div className="flex gap-2">
+                <div className="flex gap-2.5">
                   <button
                     type="button"
                     onClick={handleDownload}
-                    className="glass-btn-ghost flex-1 items-center justify-center gap-1.5 py-2.5 text-xs font-medium active:scale-[0.98] sm:gap-2 sm:py-3 sm:text-sm"
+                    className="glass-btn-ghost flex-1 items-center justify-center gap-1.5 py-3 text-xs font-semibold active:scale-[0.98] sm:gap-2 sm:text-sm"
                   >
-                    <Icon name="download" size={15} />
+                    <Icon name="download" size={16} />
                     Baixar Card em HD
                   </button>
                   <button
                     type="button"
                     onClick={onClose}
-                    className="glass-btn flex-1 items-center justify-center py-2.5 text-xs font-semibold active:scale-[0.98] sm:py-3 sm:text-sm"
+                    className="glass-btn flex-1 items-center justify-center py-3 text-xs font-semibold active:scale-[0.98] sm:text-sm"
                   >
                     Voltar à Coleção
                   </button>
