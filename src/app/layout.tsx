@@ -46,6 +46,9 @@ export default function RootLayout({
       lang="pt-BR"
       className={`${displayFallback.variable} ${slotFallback.variable} ${sansFallback.variable} h-full`}
     >
+      <head>
+        <link rel="stylesheet" href="https://use.typekit.net/fgw5nwn.css" />
+      </head>
       <body className="min-h-full antialiased">{children}</body>
     </html>
   );
