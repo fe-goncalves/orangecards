@@ -39,13 +39,13 @@ export function EaFcStage({ active, isWalkout = false, children }: Props) {
   useEffect(() => {
     if (!active) return;
 
-    const items: Ember[] = Array.from({ length: 24 }, (_, i) => ({
+    const items: Ember[] = Array.from({ length: 22 }, (_, i) => ({
       id: i,
-      left: 8 + Math.random() * 84,
-      size: 3 + Math.random() * 5,
-      duration: 3 + Math.random() * 3.5,
-      delay: Math.random() * 4,
-      opacity: 0.4 + Math.random() * 0.6,
+      left: 12 + Math.random() * 76,
+      size: 3 + Math.random() * 4.5,
+      duration: 3 + Math.random() * 3,
+      delay: Math.random() * 3.5,
+      opacity: 0.35 + Math.random() * 0.55,
     }));
 
     setEmbers(items);
@@ -56,31 +56,31 @@ export function EaFcStage({ active, isWalkout = false, children }: Props) {
   }
 
   return (
-    <div className="eafc-stage-container relative flex h-full w-full min-h-[300px] items-center justify-center overflow-hidden">
+    <div className="eafc-stage-container relative flex h-full w-full items-center justify-center py-2 sm:py-4">
       {/* 1. Flash Burst Inicial do Walkout */}
       {flash && (
         <div className="eafc-flash-burst pointer-events-none fixed inset-0 z-50 bg-radial from-white via-[#ffe27a]/40 to-transparent" />
       )}
 
-      {/* 2. Spotlights Volumétricos de Arena Estilo EA FC */}
-      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+      {/* 2. Spotlights Volumétricos e Arena com Vinheta Gradiente nas Bordas */}
+      <div className="eafc-stage-vignette pointer-events-none absolute -inset-8 z-0 overflow-hidden sm:-inset-12">
         {/* Spotlight Esquerdo */}
-        <div className="eafc-spotlight-left absolute -left-[20%] -top-[10%] h-[130%] w-[70%] origin-top-left" />
+        <div className="eafc-spotlight-left absolute -left-[15%] -top-[10%] h-[125%] w-[65%] origin-top-left" />
 
         {/* Spotlight Direito */}
-        <div className="eafc-spotlight-right absolute -right-[20%] -top-[10%] h-[130%] w-[70%] origin-top-right" />
+        <div className="eafc-spotlight-right absolute -right-[15%] -top-[10%] h-[125%] w-[65%] origin-top-right" />
 
         {/* Feixe Superior Central (God Ray) */}
         <div className="eafc-godray-top absolute left-1/2 top-0 h-[100%] w-[60%] -translate-x-1/2" />
 
         {/* Pedestal / Piso de Luz Dourada */}
-        <div className="eafc-pedestal absolute bottom-0 left-1/2 h-36 w-[120%] -translate-x-1/2" />
+        <div className="eafc-pedestal absolute bottom-6 left-1/2 h-32 w-[110%] -translate-x-1/2" />
 
-        {/* Partículas / Embers Dourados Flutuantes */}
+        {/* Partículas / Embers Dourados Flutuantes com esvaecimento suave */}
         {embers.map((e) => (
           <div
             key={e.id}
-            className="eafc-ember absolute bottom-4 rounded-full bg-[#FFE27A] shadow-[0_0_8px_#D4AF37]"
+            className="eafc-ember absolute bottom-8 rounded-full bg-[#FFE27A] shadow-[0_0_10px_#D4AF37]"
             style={{
               left: `${e.left}%`,
               width: `${e.size}px`,
