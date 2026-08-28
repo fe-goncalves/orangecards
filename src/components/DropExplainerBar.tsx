@@ -27,7 +27,7 @@ export function DropExplainerBar() {
           <div>
             <h4 className="text-[11px] font-medium tracking-wide text-ink/90 sm:text-xs">Abra o Pacotinho</h4>
             <p className="text-[10px] font-normal leading-normal text-ink-muted/70 sm:text-[11px]">
-              Clique nos cards ativos para rasgar o pacote e colar.
+              Clique nos cards ativos para abrir o pacote e colecionar.
             </p>
           </div>
         </div>

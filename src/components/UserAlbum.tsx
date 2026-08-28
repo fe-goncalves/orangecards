@@ -24,7 +24,7 @@ export function UserAlbum({ cards, claims, demo }: Props) {
       <p className="py-12 text-center text-ink-muted">
         {demo
           ? "Sem claims no modo demo."
-          : "Nenhum card colado ainda. Fique de olho no próximo drop."}
+          : "Nenhum card colecionado ainda. Fique de olho no próximo drop."}
       </p>
     );
   }

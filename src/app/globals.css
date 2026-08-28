@@ -571,21 +571,62 @@ body {
 /* Pacote de figurinha metálico/foil */
 .pack-foil-card {
   position: relative;
-  border-radius: 14px;
-  background: linear-gradient(
-    135deg,
-    #111512 0%,
-    #1b241e 25%,
-    #25332a 50%,
-    #141a16 75%,
-    #0c0f0d 100%
+  border-radius: 8px;
+  background: radial-gradient(
+    ellipse at 50% 45%,
+    #1d211f 0%,
+    #111412 55%,
+    #070807 100%
   );
-  border: 1px solid rgba(0, 255, 171, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow:
-    0 16px 36px rgba(0, 0, 0, 0.6),
-    inset 0 0 20px rgba(0, 255, 171, 0.08),
-    inset 0 1px 2px rgba(255, 255, 255, 0.25);
+    0 16px 36px rgba(0, 0, 0, 0.7),
+    inset 0 0 20px rgba(0, 0, 0, 0.8),
+    inset 0 1px 2px rgba(255, 255, 255, 0.15);
   overflow: hidden;
+}
+
+.trading-pack-body {
+  background: radial-gradient(
+    ellipse at 50% 45%,
+    #1e2220 0%,
+    #111412 55%,
+    #070807 100%
+  );
+  box-shadow:
+    inset 0 0 20px rgba(0, 0, 0, 0.9),
+    0 15px 35px rgba(0, 0, 0, 0.7);
+}
+
+.trading-pack-crimp {
+  background: repeating-linear-gradient(
+    90deg,
+    #0a0b0a 0px,
+    #0a0b0a 2px,
+    #252926 3px,
+    #111311 4px
+  );
+}
+
+.trading-pack-crimp-top {
+  box-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.trading-pack-crimp-bottom {
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.trading-pack-foil-highlight {
+  background: linear-gradient(
+    105deg,
+    transparent 15%,
+    rgba(255, 255, 255, 0.03) 28%,
+    rgba(255, 245, 210, 0.09) 36%,
+    rgba(255, 255, 255, 0.02) 45%,
+    transparent 65%,
+    rgba(255, 255, 255, 0.05) 82%,
+    transparent 95%
+  );
 }
 
 .pack-foil-card::before {

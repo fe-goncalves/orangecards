@@ -53,7 +53,7 @@ export function AlbumCompleteModal({ total, open, onClose }: Props) {
           </span>
 
           <h2 className="font-display mt-3 text-2xl font-bold tracking-tight text-ink sm:text-3xl">
-            ÁLBUM COMPLETO 100%!
+            COLEÇÃO COMPLETA 100%!
           </h2>
 
           <p className="mt-2 text-sm leading-relaxed text-ink-muted">
@@ -62,7 +62,7 @@ export function AlbumCompleteModal({ total, open, onClose }: Props) {
 
           <div className="my-5 w-full rounded-2xl border border-white/10 bg-black/40 p-4">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-ink-muted">Status do Álbum</span>
+              <span className="text-ink-muted">Status da Coleção</span>
               <span className="font-bold text-mint">100% Concluído</span>
             </div>
             <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-surface-2">
@@ -75,7 +75,7 @@ export function AlbumCompleteModal({ total, open, onClose }: Props) {
             onClick={onClose}
             className="glass-btn w-full py-3 text-sm font-semibold text-[#04140e]"
           >
-            Ver Meu Álbum Completo
+            Ver Minha Coleção
           </button>
         </div>
       </div>

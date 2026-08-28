@@ -163,21 +163,34 @@ export function AuthButton({ initialUser, openSignal = 0, disabled }: Props) {
   if (user) {
     return (
       <>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          {/* Botão Perfil (Ícone no mobile, Pill com nome no desktop) */}
           <button
             type="button"
             onClick={() => setAccountOpen(true)}
             className="glass-pill hidden max-w-[160px] truncate sm:inline-flex"
             title={user.email ?? undefined}
           >
-            <Icon name="user" size={14} className="shrink-0 text-ink-muted" />
+            <Icon name="user" size={14} className="shrink-0 text-mint" />
             <span className="truncate">{displayName(user)}</span>
           </button>
           <button
             type="button"
+            onClick={() => setAccountOpen(true)}
+            className="glass-icon-btn sm:hidden"
+            aria-label="Perfil"
+            title={user.email ?? undefined}
+          >
+            <Icon name="user" size={16} className="text-mint" />
+          </button>
+
+          {/* Botão Logout */}
+          <button
+            type="button"
             onClick={signOut}
             className="glass-icon-btn"
-            aria-label="Sair"
+            aria-label="Sair da conta"
+            title="Sair"
           >
             <Icon name="logout" size={16} />
           </button>
@@ -208,7 +221,7 @@ export function AuthButton({ initialUser, openSignal = 0, disabled }: Props) {
           setMode("signin");
           setOpen(true);
         }}
-        className="glass-btn px-4 py-2 text-sm"
+        className="glass-btn px-3.5 py-1.5 text-xs font-semibold sm:px-4 sm:py-2 sm:text-sm"
       >
         Entrar
       </button>
@@ -223,7 +236,7 @@ export function AuthButton({ initialUser, openSignal = 0, disabled }: Props) {
                   ? "Verificação por e-mail na primeira vez"
                   : mode === "forgot"
                     ? "Enviaremos um link para redefinir"
-                    : "Acesse seu álbum"
+                    : "Acesse sua coleção"
               }
               onClose={closeAuth}
             >

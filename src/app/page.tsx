@@ -78,7 +78,7 @@ export default async function HomePage({ searchParams }: PageProps) {
     <Suspense
       fallback={
         <div className="flex min-h-screen items-center justify-center text-ink-muted">
-          Carregando álbum…
+          Carregando coleção…
         </div>
       }
     >

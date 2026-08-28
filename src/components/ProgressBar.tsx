@@ -32,7 +32,7 @@ export function ProgressBar({ owned, total, onShowCelebration }: Props) {
             className="animate-gold-pulse flex items-center gap-1.5 rounded-full bg-gradient-to-r from-mint to-gold px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#04140e] shadow-md transition hover:scale-105"
           >
             <Icon name="sparkles" size={14} />
-            <span>Álbum Completo 100%!</span>
+            <span>Coleção Completa 100%!</span>
           </button>
         ) : (
           <span className="text-xs font-mono text-mint">
@@ -47,7 +47,7 @@ export function ProgressBar({ owned, total, onShowCelebration }: Props) {
         aria-valuenow={owned}
         aria-valuemin={0}
         aria-valuemax={total}
-        aria-label="Progresso do álbum"
+        aria-label="Progresso da coleção"
       >
         <div
           className={`h-full transition-all duration-700 ease-out ${
