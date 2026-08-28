@@ -8,6 +8,73 @@
    ============================================================================= */
 
 /* Local brand fonts — drop woff2 in /public/fonts (ver DROP-FONTS-HERE.txt) */
+
+/* PACAEMBU (Adobe Fonts / Plau) */
+@font-face {
+  font-family: "Pacaembu";
+  src: url("/fonts/Pacaembu-Light.woff2") format("woff2"),
+    url("/fonts/pacaembu-light.woff2") format("woff2"),
+    url("/fonts/Pacaembu-Light.woff") format("woff");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Pacaembu";
+  src: url("/fonts/Pacaembu-Regular.woff2") format("woff2"),
+    url("/fonts/pacaembu-regular.woff2") format("woff2"),
+    url("/fonts/Pacaembu-Regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Pacaembu";
+  src: url("/fonts/Pacaembu-Medium.woff2") format("woff2"),
+    url("/fonts/pacaembu-medium.woff2") format("woff2"),
+    url("/fonts/Pacaembu-Medium.woff") format("woff");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Pacaembu";
+  src: url("/fonts/Pacaembu-SemiBold.woff2") format("woff2"),
+    url("/fonts/pacaembu-semibold.woff2") format("woff2"),
+    url("/fonts/Pacaembu-SemiBold.woff") format("woff");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Pacaembu";
+  src: url("/fonts/Pacaembu-Bold.woff2") format("woff2"),
+    url("/fonts/pacaembu-bold.woff2") format("woff2"),
+    url("/fonts/Pacaembu-Bold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Pacaembu";
+  src: url("/fonts/Pacaembu-ExtraBold.woff2") format("woff2"),
+    url("/fonts/pacaembu-extrabold.woff2") format("woff2"),
+    url("/fonts/Pacaembu-ExtraBold.woff") format("woff");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Pacaembu";
+  src: url("/fonts/Pacaembu-Black.woff2") format("woff2"),
+    url("/fonts/pacaembu-black.woff2") format("woff2"),
+    url("/fonts/Pacaembu-Black.woff") format("woff");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Sharp Grotesk */
 @font-face {
   font-family: "Sharp Grotesk";
   src: url("/fonts/SharpGrotesk-Medium.woff2") format("woff2");
@@ -111,12 +178,12 @@
   --dur-fast: 150ms;
   --dur: 280ms;
 
-  /* Type stacks — Sharp Grotesk / Noka / Nexa */
-  --font-display: "Sharp Grotesk", var(--font-display-fallback), ui-sans-serif,
+  /* Type stacks — Pacaembu / Sharp Grotesk / Noka / Nexa */
+  --font-display: "Pacaembu", "Sharp Grotesk", var(--font-display-fallback), ui-sans-serif,
     system-ui, sans-serif;
-  --font-body: "Noka", "Nexa", var(--font-sans-fallback), ui-sans-serif,
+  --font-body: "Pacaembu", "Noka", "Nexa", var(--font-sans-fallback), ui-sans-serif,
     system-ui, sans-serif;
-  --font-ui: "Nexa", "Noka", var(--font-sans-fallback), ui-sans-serif,
+  --font-ui: "Pacaembu", "Nexa", "Noka", var(--font-sans-fallback), ui-sans-serif,
     system-ui, sans-serif;
   --font-slot: "Sharp Grotesk", var(--font-slot-fallback), Impact,
     Haettenschweiler, "Arial Black", sans-serif;

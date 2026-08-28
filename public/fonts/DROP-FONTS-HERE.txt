@@ -1,16 +1,21 @@
-Drop woff2 here (same names), then restart npm run dev.
+Coloque os arquivos .woff2 ou .woff nesta pasta (/public/fonts):
 
-Display / títulos:
-  - SharpGrotesk-Medium.woff2  (ou SharpGrotesk-Bold.woff2)
+Pacaembu (Adobe Fonts / Plau):
+  - Pacaembu-Light.woff2
+  - Pacaembu-Regular.woff2
+  - Pacaembu-Medium.woff2
+  - Pacaembu-SemiBold.woff2
+  - Pacaembu-Bold.woff2
+  - Pacaembu-ExtraBold.woff2
+  - Pacaembu-Black.woff2
+
+Outras fontes suportadas:
+  - SharpGrotesk-Medium.woff2
   - SharpGrotesk-Bold.woff2
-  - SharpGrotesk-Black10.woff2  (numeração slots vazios)
-
-Corpo:
+  - SharpGrotesk-Black10.woff2
   - Noka-Regular.woff2
   - Noka-Medium.woff2
-
-UI / admin:
   - Nexa-Regular.woff2
   - Nexa-Bold.woff2
 
-Espelhe os mesmos arquivos em admin/public/fonts/
+Espelhe os mesmos arquivos em admin/public/fonts/ se desejar no painel admin.
