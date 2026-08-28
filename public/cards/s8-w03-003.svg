@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" role="img" aria-label="Raio">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FF5A00"/>
+      <stop offset="100%" stop-color="#1a0800"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="600" fill="url(#g)"/>
+  <rect x="24" y="24" width="352" height="552" fill="none" stroke="#FFE0CC" stroke-width="3"/>
+  <text x="200" y="120" text-anchor="middle" fill="#FFF" font-family="Arial Black, sans-serif" font-size="28" letter-spacing="4">S8-W03-003</text>
+  <circle cx="200" cy="280" r="90" fill="#0B0B0B" opacity="0.35"/>
+  <text x="200" y="295" text-anchor="middle" fill="#FFF" font-family="Arial Black, sans-serif" font-size="42">RA</text>
+  <text x="200" y="480" text-anchor="middle" fill="#FFF" font-family="Arial Black, sans-serif" font-size="32">RAIO</text>
+  <text x="200" y="520" text-anchor="middle" fill="#FFE0CC" font-family="Arial, sans-serif" font-size="18">MEIA · LIVE</text>
+</svg>

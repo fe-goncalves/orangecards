@@ -1,0 +1,16 @@
+Drop woff2 here (same names), then restart npm run dev.
+
+Display / títulos:
+  - SharpGrotesk-Medium.woff2  (ou SharpGrotesk-Bold.woff2)
+  - SharpGrotesk-Bold.woff2
+  - SharpGrotesk-Black10.woff2  (numeração slots vazios)
+
+Corpo:
+  - Noka-Regular.woff2
+  - Noka-Medium.woff2
+
+UI / admin:
+  - Nexa-Regular.woff2
+  - Nexa-Bold.woff2
+
+Espelhe os mesmos arquivos em admin/public/fonts/

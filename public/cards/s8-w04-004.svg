@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" role="img" aria-label="Em breve">
+  <rect width="400" height="600" fill="#141414"/>
+  <rect x="24" y="24" width="352" height="552" fill="none" stroke="#333" stroke-width="3" stroke-dasharray="12 8"/>
+  <text x="200" y="300" text-anchor="middle" fill="#555" font-family="Arial Black, sans-serif" font-size="36">?</text>
+  <text x="200" y="360" text-anchor="middle" fill="#666" font-family="Arial, sans-serif" font-size="18">EM BREVE</text>
+</svg>
