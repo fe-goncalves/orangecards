@@ -178,14 +178,14 @@
   --dur-fast: 150ms;
   --dur: 280ms;
 
-  /* Type stacks — Pacaembu / Sharp Grotesk / Noka / Nexa */
-  --font-display: "Pacaembu", "Sharp Grotesk", var(--font-display-fallback), ui-sans-serif,
+  /* Type stacks — Pacaembu (Adobe Fonts Typekit) */
+  --font-display: "pacaembu", "Pacaembu", var(--font-display-fallback), ui-sans-serif,
     system-ui, sans-serif;
-  --font-body: "Pacaembu", "Noka", "Nexa", var(--font-sans-fallback), ui-sans-serif,
+  --font-body: "pacaembu", "Pacaembu", var(--font-sans-fallback), ui-sans-serif,
     system-ui, sans-serif;
-  --font-ui: "Pacaembu", "Nexa", "Noka", var(--font-sans-fallback), ui-sans-serif,
+  --font-ui: "pacaembu", "Pacaembu", var(--font-sans-fallback), ui-sans-serif,
     system-ui, sans-serif;
-  --font-slot: "Sharp Grotesk", var(--font-slot-fallback), Impact,
+  --font-slot: "pacaembu", "Pacaembu", "Sharp Grotesk", var(--font-slot-fallback), Impact,
     Haettenschweiler, "Arial Black", sans-serif;
 
   /* Empty slot — chapado, pontudo, traço interno bem grosso */
@@ -437,7 +437,7 @@ body {
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font-body);
-  font-weight: 500;
+  font-weight: 400;
   -webkit-font-smoothing: antialiased;
 }
 

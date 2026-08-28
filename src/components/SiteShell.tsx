@@ -22,7 +22,7 @@ function SeasonBadge() {
         y="28"
         textAnchor="middle"
         style={{
-          fontFamily: "Pacaembu, Noka, var(--font-sans-fallback), ui-sans-serif, system-ui, sans-serif",
+          fontFamily: '"pacaembu", "Pacaembu", ui-sans-serif, system-ui, sans-serif',
           fontSize: 22,
           fontWeight: 600,
           letterSpacing: "0.14em",
