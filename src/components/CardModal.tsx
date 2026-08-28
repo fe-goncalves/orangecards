@@ -164,14 +164,14 @@ export function CardModal({
           </button>
 
           {/* Lado Esquerdo: Visual do Card / Pacotinho */}
-          <div className="relative flex shrink-0 items-center justify-center overflow-hidden bg-[#070908] px-3 pt-[calc(3rem+env(safe-area-inset-top,0px))] pb-3 sm:px-6 sm:py-6 md:w-[min(48vw,440px)] md:flex-col md:px-8 md:py-10">
+          <div className="relative flex shrink-0 items-center justify-center overflow-hidden bg-[#070908] px-3 pt-[calc(2.5rem+env(safe-area-inset-top,0px))] pb-3 sm:px-6 sm:py-6 md:w-[min(48vw,440px)] md:flex-col md:px-8 md:py-10">
             {/* 1. SE FOR LIMITED EDITION (LE): Ativa Palco EA FC + Interação de Flip para ver versão Regular */}
             {effectiveLe && showArt ? (
               <EaFcStage active={true} isWalkout={isWalkout}>
                 <div className="flex flex-col items-center">
                   <div
                     onClick={() => setIsFlipped((f) => !f)}
-                    className="group relative aspect-card w-[min(72vw,270px)] sm:w-[290px] md:w-[320px] cursor-pointer transition-transform duration-500 [transform-style:preserve-3d] hover:scale-[1.02]"
+                    className="group relative aspect-card w-[min(62vw,240px)] sm:w-[280px] md:w-[320px] cursor-pointer transition-transform duration-500 [transform-style:preserve-3d] hover:scale-[1.02]"
                     title="Clique para alternar versão Regular / LE"
                   >
                     <div
@@ -187,7 +187,7 @@ export function CardModal({
                           alt={card.title || publicLabel(card)}
                           fill
                           className="object-cover"
-                          sizes="(max-width:768px) 72vw, 320px"
+                          sizes="(max-width:768px) 62vw, 320px"
                           unoptimized={currentImg.endsWith(".svg")}
                           priority
                         />
@@ -218,7 +218,7 @@ export function CardModal({
                   <button
                     type="button"
                     onClick={() => setIsFlipped((f) => !f)}
-                    className="mt-2.5 flex items-center gap-1.5 text-[11px] font-medium text-gold/80 transition hover:text-gold"
+                    className="mt-2 flex items-center gap-1.5 text-[10px] font-medium text-gold/80 transition hover:text-gold sm:text-[11px]"
                   >
                     <Icon name="sparkles" size={12} />
                     <span>
@@ -233,7 +233,7 @@ export function CardModal({
               <>
                 {/* 2. ESTADO: PACOTE LACRADO (Drop ao vivo pronto para abrir) */}
                 {openingState !== "revealed" && isLive && (
-                  <div className="w-[min(72vw,270px)] sm:w-[290px] md:w-[310px]">
+                  <div className="w-[min(62vw,240px)] sm:w-[280px] md:w-[310px]">
                     <TradingCardPack
                       cardNumber={publicLabel(card)}
                       isOpening={openingState === "opening"}
@@ -246,14 +246,14 @@ export function CardModal({
 
                 {/* 3. ESTADO: CARD PADRÃO REVELADO */}
                 {openingState === "revealed" && showArt && (
-                  <div className="animate-card-reveal relative z-10 aspect-card w-[min(72vw,270px)] overflow-hidden rounded-md border border-white/10 shadow-2xl sm:w-[290px] md:w-[320px]">
+                  <div className="animate-card-reveal relative z-10 aspect-card w-[min(62vw,240px)] overflow-hidden rounded-md border border-white/10 shadow-2xl sm:w-[280px] md:w-[320px]">
                     {regularImg ? (
                       <Image
                         src={regularImg}
                         alt={card.title || publicLabel(card)}
                         fill
                         className="object-cover"
-                        sizes="(max-width:768px) 72vw, 320px"
+                        sizes="(max-width:768px) 62vw, 320px"
                         unoptimized={regularImg.endsWith(".svg")}
                         priority
                       />
@@ -269,7 +269,7 @@ export function CardModal({
 
                 {/* 4. ESTADO: SLOT VAZIO (Inativo / Fora da Janela) */}
                 {!isLive && !isOwned && (
-                  <div className="card-slot-empty relative aspect-card w-[min(72vw,270px)] overflow-hidden rounded-md sm:w-[290px] md:w-[320px]">
+                  <div className="card-slot-empty relative aspect-card w-[min(62vw,240px)] overflow-hidden rounded-md sm:w-[280px] md:w-[320px]">
                     <div className="absolute inset-0 flex items-center justify-center bg-surface-2">
                       <span className="font-slot select-none text-[clamp(2.5rem,14vw,4rem)] leading-none text-ink-faint">
                         #{publicLabel(card)}

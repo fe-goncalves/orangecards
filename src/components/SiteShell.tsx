@@ -11,37 +11,47 @@ export function SiteShell({ children, right }: Props) {
   return (
     <div className="ds-stage min-h-screen">
       <div className="relative mx-auto flex min-h-screen max-w-5xl flex-col px-3 pb-8 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] sm:px-5 sm:pt-6">
-        {/* Header: Esquerda (Logo + Nome da Coleção Horizontal) | Direita (Perfil + Logout) */}
-        <header className="mb-6 flex items-center justify-between gap-3 border-b border-white/[0.04] pb-4 sm:mb-8 sm:pb-5">
+        {/* Header Responsivo e Elegante */}
+        <header className="mb-5 flex items-center justify-between gap-2 border-b border-white/[0.06] pb-3.5 sm:mb-8 sm:gap-4 sm:pb-5">
           <Link
             href="/"
-            className="flex items-center gap-2.5 sm:gap-3.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-mint"
+            className="flex items-center gap-2 sm:gap-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-mint"
           >
+            {/* Ícone da Marca */}
             <Image
               src="/brand/icon.svg"
-              alt="Orange Cards"
-              width={44}
-              height={44}
-              className="h-8 w-8 shrink-0 transition duration-300 hover:drop-shadow-[0_0_14px_var(--mint-glow)] sm:h-10 sm:w-10"
+              alt="Orange Cards Icon"
+              width={38}
+              height={38}
+              className="h-8 w-8 shrink-0 transition duration-300 hover:drop-shadow-[0_0_12px_var(--mint-glow)] sm:h-9 sm:w-9"
               priority
             />
-            <div className="flex flex-col text-left">
-              <span className="text-[9px] font-bold uppercase tracking-[0.18em] text-[#8e9892] sm:text-[11px]">
-                Orange Cards
-              </span>
-              <span
-                className="text-sm font-bold uppercase tracking-wider text-ink sm:text-base"
+
+            {/* Wordmark Oficial em SVG + Season 8 com Fonte Noka */}
+            <div className="flex flex-col justify-center">
+              <Image
+                src="/brand/wordmark.svg"
+                alt="ORANGE CARDS"
+                width={120}
+                height={12}
+                className="h-2.5 w-auto sm:h-3"
+                priority
+              />
+              <div
+                className="mt-0.5 text-[10px] uppercase tracking-[0.16em] sm:text-[11px]"
                 style={{
-                  fontFamily: '"pacaembu", "Pacaembu", ui-sans-serif, system-ui, sans-serif',
-                  letterSpacing: "0.08em",
+                  fontFamily: 'Noka, "pacaembu", ui-sans-serif, system-ui, sans-serif',
+                  fontWeight: 500,
                 }}
               >
-                Season <span className="text-mint">8</span>
-              </span>
+                <span className="text-ink/80">SEASON </span>
+                <span className="font-bold text-mint">8</span>
+              </div>
             </div>
           </Link>
 
-          <div className="flex items-center gap-2">{right}</div>
+          {/* Botões do lado direito (Perfil + Sair ou Entrar) */}
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">{right}</div>
         </header>
 
         <div className="animate-rise flex flex-1 flex-col">{children}</div>

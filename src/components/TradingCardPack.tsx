@@ -27,82 +27,92 @@ export function TradingCardPack({
         isOpening ? "animate-pack-shake" : ""
       } ${
         isInteractive
-          ? "cursor-pointer transition-transform duration-300 hover:scale-[1.025] hover:shadow-[0_12px_40px_rgba(0,0,0,0.8)]"
+          ? "cursor-pointer transition-transform duration-300 hover:scale-[1.025] hover:shadow-[0_12px_40px_rgba(0,255,171,0.25)]"
           : ""
       } ${className}`}
     >
-      {/* Corpo Metálico do Pacotinho Estilo Foil Pillow */}
-      <div className="trading-pack-body relative flex h-full w-full flex-col justify-between overflow-hidden bg-[#0c0e0d] text-center shadow-2xl">
-        {/* Selo Serrilhado Superior (Crimp Seal) */}
-        <div className="trading-pack-crimp trading-pack-crimp-top relative z-10 h-4 w-full shrink-0 border-b border-white/[0.08]" />
+      {/* Corpo Metálico do Pacotinho — Verde Esmeralda Foil Premium */}
+      <div className="pack-green-body relative flex h-full w-full flex-col justify-between overflow-hidden text-center shadow-2xl">
+        {/* Selo Serrilhado Superior */}
+        <div className="pack-crimp-emerald pack-crimp-top relative z-10 h-3.5 w-full shrink-0 border-b border-mint/20" />
 
-        {/* Reflexo de Luz Metálica (Foil Sheen) */}
-        <div className="trading-pack-foil-highlight pointer-events-none absolute inset-0 z-[2]" />
+        {/* Reflexo Holográfico / Foil Verde */}
+        <div className="pack-green-foil-sheen pointer-events-none absolute inset-0 z-[2]" />
 
-        {/* Conteúdo Gráfico Frontal do Pack */}
-        <div className="relative z-10 flex flex-1 flex-col items-center justify-between px-3 py-2 sm:px-4 sm:py-3">
-          {/* Header Superior */}
-          <div className="flex w-full items-center justify-between">
-            <div className="flex items-center gap-1.5 text-left">
-              <Image
-                src="/brand/icon.svg"
-                alt=""
-                width={16}
-                height={16}
-                className="h-3.5 w-3.5 opacity-85 brightness-125"
-              />
-              <span className="text-[8px] font-bold uppercase tracking-[0.16em] text-[#d6cbb6] sm:text-[9px]">
-                Orange Cards
-              </span>
-            </div>
-            <span className="text-[7px] font-semibold uppercase tracking-wider text-[#9ea39f] sm:text-[8px]">
-              Season 8
-            </span>
+        {/* Grafismos de Fundo — Linhas Geométricas Sutis */}
+        <div className="pointer-events-none absolute inset-0 z-[1] opacity-25">
+          <svg className="h-full w-full" viewBox="0 0 200 280" fill="none">
+            <line x1="0" y1="50" x2="200" y2="190" stroke="#00FFAB" strokeWidth="0.75" />
+            <line x1="0" y1="90" x2="200" y2="230" stroke="#00FFAB" strokeWidth="0.5" />
+            <line x1="0" y1="20" x2="200" y2="160" stroke="#00FFAB" strokeWidth="0.5" />
+            <circle cx="100" cy="140" r="70" stroke="#00FFAB" strokeWidth="0.5" strokeDasharray="4 4" />
+          </svg>
+        </div>
+
+        {/* Conteúdo Central Minimalista & Estiloso */}
+        <div className="relative z-10 flex flex-1 flex-col items-center justify-between px-2 py-2.5 sm:px-4 sm:py-3.5">
+          {/* Header Superior: Ícone + Wordmark SVG */}
+          <div className="flex flex-col items-center gap-1">
+            <Image
+              src="/brand/icon.svg"
+              alt="Orange Cards"
+              width={24}
+              height={24}
+              className="h-5 w-5 drop-shadow-[0_0_10px_rgba(0,255,171,0.6)] sm:h-7 sm:w-7"
+            />
+            <Image
+              src="/brand/wordmark.svg"
+              alt="ORANGE CARDS"
+              width={80}
+              height={9}
+              className="h-2 w-auto opacity-95 sm:h-2.5"
+            />
           </div>
 
-          {/* Centro do Pacotinho */}
+          {/* Centro: Season 8 + Numeração Principal */}
           <div className="my-auto flex flex-col items-center">
-            <div className="mb-1 flex items-center justify-center">
-              <span className="text-[9px] font-bold uppercase tracking-[0.24em] text-[#c7b99c] opacity-90 sm:text-[10px]">
-                Trading Card
-              </span>
-            </div>
-
-            <h3
-              className="text-lg font-black uppercase tracking-tight text-[#f3ece0] drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] sm:text-2xl"
+            <span
+              className="text-[9px] uppercase tracking-[0.18em] text-mint/80 sm:text-[11px]"
               style={{
-                fontFamily: '"pacaembu", "Pacaembu", ui-sans-serif, system-ui, sans-serif',
-                lineHeight: 1.05,
+                fontFamily: 'Noka, "pacaembu", ui-sans-serif, system-ui, sans-serif',
+                fontWeight: 500,
               }}
             >
-              Card Pack
-            </h3>
+              SEASON <span className="font-bold text-white">8</span>
+            </span>
 
-            {/* Número do Card em Destaque Dourado/Areia */}
-            <div className="mt-2.5 flex items-center justify-center">
-              <span className="rounded-md border border-[#d6cbb6]/25 bg-black/45 px-2.5 py-0.5 text-xs font-black tracking-widest text-[#f5ebd9] shadow-inner sm:text-sm">
+            {/* Número do Card Limpo e Marcante */}
+            <div className="relative my-1 flex items-center justify-center sm:my-1.5">
+              <span
+                className="select-none text-2xl font-black tracking-tight text-white drop-shadow-[0_0_16px_rgba(0,255,171,0.5)] sm:text-4xl md:text-5xl"
+                style={{
+                  fontFamily: '"pacaembu", "Pacaembu", ui-sans-serif, system-ui, sans-serif',
+                }}
+              >
                 #{cardNumber}
               </span>
             </div>
 
             {badgeLabel && (
-              <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-mint/15 px-2 py-0.5 text-[8px] font-bold uppercase tracking-wider text-mint">
-                <Icon name="sparkles" size={9} />
+              <span className="animate-badge-pulse inline-flex items-center gap-1 rounded-full bg-mint px-2 py-0.5 text-[8px] font-bold uppercase tracking-wider text-[#04140e] shadow-md sm:text-[9px]">
+                <Icon name="sparkles" size={10} />
                 {badgeLabel}
               </span>
             )}
           </div>
 
-          {/* Rodapé do Pack */}
-          <div className="w-full border-t border-white/[0.06] pt-1 text-center">
-            <p className="text-[7px] uppercase tracking-[0.18em] text-[#8e9690] sm:text-[8px]">
-              Limited Drop Edition
-            </p>
+          {/* Rodapé: Detalhe Foil Sutil */}
+          <div className="flex items-center gap-1 opacity-60">
+            <div className="h-0.5 w-4 bg-mint/40 sm:w-6" />
+            <span className="text-[7px] font-bold uppercase tracking-[0.18em] text-mint sm:text-[8px]">
+              BOOSTER PACK
+            </span>
+            <div className="h-0.5 w-4 bg-mint/40 sm:w-6" />
           </div>
         </div>
 
-        {/* Selo Serrilhado Inferior (Crimp Seal) */}
-        <div className="trading-pack-crimp trading-pack-crimp-bottom relative z-10 h-4 w-full shrink-0 border-t border-white/[0.08]" />
+        {/* Selo Serrilhado Inferior */}
+        <div className="pack-crimp-emerald pack-crimp-bottom relative z-10 h-3.5 w-full shrink-0 border-t border-mint/20" />
       </div>
     </div>
   );
