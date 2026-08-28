@@ -15,6 +15,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Icon } from "./Icon";
 import { ModalPortal } from "./ModalPortal";
 import { ConfettiCelebration } from "./ConfettiCelebration";
+import { EaFcStage } from "./EaFcStage";
 
 type Props = {
   card: Card | null;
@@ -40,6 +41,7 @@ export function CardModal({
   const [openingState, setOpeningState] = useState<"sealed" | "opening" | "revealed">("sealed");
   const [feedback, setFeedback] = useState<string | null>(null);
   const [wonLe, setWonLe] = useState(false);
+  const [isWalkout, setIsWalkout] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
 
   const isOwned = status === "owned";
@@ -49,6 +51,7 @@ export function CardModal({
     if (!card) return;
     setFeedback(null);
     setWonLe(false);
+    setIsWalkout(false);
     setShowConfetti(false);
     setOpeningState(isOwned ? "revealed" : "sealed");
   }, [card?.id, isOwned]);
@@ -110,6 +113,7 @@ export function CardModal({
       const isWinner = Boolean(result.is_le);
       if (isWinner) {
         setWonLe(true);
+        setIsWalkout(true);
         setShowConfetti(true);
       }
       setOpeningState("revealed");
@@ -157,98 +161,107 @@ export function CardModal({
 
           {/* Lado Esquerdo: Área Visual do Card / Pacotinho */}
           <div className="relative flex shrink-0 items-center justify-center overflow-hidden bg-[#070908] px-4 pt-[calc(3.5rem+env(safe-area-inset-top,0px))] pb-4 md:w-[min(48vw,440px)] md:flex-col md:px-8 md:py-10">
-            {/* Raios Dourados de Fundo se for LE revelado */}
-            {effectiveLe && showArt && (
-              <div
-                className="animate-le-rays pointer-events-none absolute -inset-24 z-0 opacity-40"
-                style={{
-                  background:
-                    "conic-gradient(from 0deg, transparent 0deg, rgba(212,175,55,0.4) 15deg, transparent 30deg, transparent 60deg, rgba(212,175,55,0.4) 75deg, transparent 90deg, transparent 120deg, rgba(212,175,55,0.4) 135deg, transparent 150deg, transparent 180deg, rgba(212,175,55,0.4) 195deg, transparent 210deg, transparent 240deg, rgba(212,175,55,0.4) 255deg, transparent 270deg, transparent 300deg, rgba(212,175,55,0.4) 315deg, transparent 330deg)",
-                }}
-              />
-            )}
+            {/* Se for LE revelado, ativa o palco EA FC com spotlights volumétricos e pedestal */}
+            {effectiveLe && showArt ? (
+              <EaFcStage active={true} isWalkout={isWalkout}>
+                <div className="eafc-gold-bezel relative z-10 aspect-card w-full max-w-[min(65vw,260px)] overflow-hidden rounded-sm shadow-[0_20px_60px_rgba(0,0,0,0.8)] md:max-w-[320px]">
+                  {img && (
+                    <Image
+                      src={img}
+                      alt={card.title || publicLabel(card)}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width:768px) 65vw, 320px"
+                      unoptimized={img.endsWith(".svg")}
+                      priority
+                    />
+                  )}
+                  {/* Sheen Holográfico Prismático EA FC */}
+                  <div className="eafc-holo-sheen" />
 
-            {/* 1. ESTADO: PACOTE LACRADO (Drop ao vivo, pronto para abrir) */}
-            {openingState !== "revealed" && isLive && (
-              <div
-                onClick={() => isLoggedIn && handleOpenPack()}
-                className={`group relative aspect-card w-full max-w-[min(65vw,260px)] md:max-w-[300px] cursor-pointer select-none transition ${
-                  openingState === "opening" ? "animate-pack-shake" : "hover:scale-[1.02]"
-                }`}
-              >
-                <div className="pack-foil-card flex h-full w-full flex-col justify-between p-3 text-center">
-                  <div className="pack-crimp-top -mx-3 -mt-3" />
-
-                  <div className="flex items-center justify-between px-1 text-[10px] uppercase tracking-widest text-mint">
-                    <span>Orange Cards</span>
-                    <span>S8</span>
+                  {/* Badge EA FC Special Item */}
+                  <div className="absolute left-2.5 top-2.5 z-20 flex items-center gap-1.5 rounded-md bg-gradient-to-r from-[#FFF0A5] via-[#D4AF37] to-[#8A6D1C] px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-[#1a1400] shadow-[0_3px_10px_rgba(0,0,0,0.7)]">
+                    <Icon name="sparkles" size={11} />
+                    <span>Limited Edition</span>
                   </div>
+                </div>
+              </EaFcStage>
+            ) : (
+              <>
+                {/* 1. ESTADO: PACOTE LACRADO (Drop ao vivo, pronto para abrir) */}
+                {openingState !== "revealed" && isLive && (
+                  <div
+                    onClick={() => isLoggedIn && handleOpenPack()}
+                    className={`group relative aspect-card w-full max-w-[min(65vw,260px)] md:max-w-[300px] cursor-pointer select-none transition ${
+                      openingState === "opening" ? "animate-pack-shake" : "hover:scale-[1.02]"
+                    }`}
+                  >
+                    <div className="pack-foil-card flex h-full w-full flex-col justify-between p-3 text-center">
+                      <div className="pack-crimp-top -mx-3 -mt-3" />
 
-                  <div className="my-auto flex flex-col items-center">
-                    <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-2xl border border-mint/40 bg-mint/10 text-mint drop-shadow-[0_0_12px_rgba(0,255,171,0.5)]">
-                      <Icon name="sparkles" size={24} />
+                      <div className="flex items-center justify-between px-1 text-[10px] uppercase tracking-widest text-mint">
+                        <span>Orange Cards</span>
+                        <span>S8</span>
+                      </div>
+
+                      <div className="my-auto flex flex-col items-center">
+                        <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-2xl border border-mint/40 bg-mint/10 text-mint drop-shadow-[0_0_12px_rgba(0,255,171,0.5)]">
+                          <Icon name="sparkles" size={24} />
+                        </div>
+                        <span className="font-slot text-4xl text-ink drop-shadow-md">
+                          #{publicLabel(card)}
+                        </span>
+                        <span className="mt-1 text-[11px] font-bold uppercase tracking-wider text-mint">
+                          Booster Pack
+                        </span>
+                        <span className="mt-0.5 text-[9px] text-ink-muted">
+                          Clique para rasgar e abrir
+                        </span>
+                      </div>
+
+                      <div className="px-1 text-[9px] uppercase tracking-wider text-gold">
+                        {card.le_enabled && leRemaining(card) > 0 ? "Chance de Limited Edition" : "Drop Oficial"}
+                      </div>
+
+                      <div className="pack-crimp-bottom -mx-3 -mb-3" />
                     </div>
-                    <span className="font-slot text-4xl text-ink drop-shadow-md">
-                      #{publicLabel(card)}
-                    </span>
-                    <span className="mt-1 text-[11px] font-bold uppercase tracking-wider text-mint">
-                      Booster Pack
-                    </span>
-                    <span className="mt-0.5 text-[9px] text-ink-muted">
-                      Clique para rasgar e abrir
-                    </span>
-                  </div>
-
-                  <div className="px-1 text-[9px] uppercase tracking-wider text-gold">
-                    {card.le_enabled && leRemaining(card) > 0 ? "Chance de Limited Edition" : "Drop Oficial"}
-                  </div>
-
-                  <div className="pack-crimp-bottom -mx-3 -mb-3" />
-                </div>
-              </div>
-            )}
-
-            {/* 2. ESTADO: CARD REVELADO OU SLOT VAZIO */}
-            {openingState === "revealed" && (
-              <div
-                className={`relative z-10 aspect-card w-full max-w-[min(65vw,260px)] overflow-hidden shadow-2xl md:max-w-[320px] ${
-                  effectiveLe ? "animate-gold-pulse border-2 border-gold" : ""
-                } ${!showArt ? "card-slot-empty" : "animate-card-reveal"}`}
-              >
-                {showArt && img ? (
-                  <Image
-                    src={img}
-                    alt={card.title || publicLabel(card)}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width:768px) 65vw, 320px"
-                    unoptimized={img.endsWith(".svg")}
-                    priority
-                  />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center bg-surface-2">
-                    <span className="font-slot select-none text-[clamp(2.5rem,14vw,4rem)] leading-none text-ink-faint">
-                      {publicLabel(card)}
-                    </span>
                   </div>
                 )}
-                {effectiveLe && (
-                  <span className="absolute left-2 top-2 z-10 rounded bg-gold px-2 py-0.5 text-[10px] font-extrabold uppercase text-[#1a1400] shadow-md">
-                    Limited Edition
-                  </span>
-                )}
-              </div>
-            )}
 
-            {/* 3. ESTADO: SLOT VAZIO (Inativo / Fora da Janela) */}
-            {!isLive && !isOwned && (
-              <div className="card-slot-empty relative aspect-card w-full max-w-[min(65vw,260px)] overflow-hidden md:max-w-[320px]">
-                <div className="absolute inset-0 flex items-center justify-center bg-surface-2">
-                  <span className="font-slot select-none text-[clamp(2.5rem,14vw,4rem)] leading-none text-ink-faint">
-                    {publicLabel(card)}
-                  </span>
-                </div>
-              </div>
+                {/* 2. ESTADO: CARD PADRÃO REVELADO */}
+                {openingState === "revealed" && showArt && (
+                  <div className="animate-card-reveal relative z-10 aspect-card w-full max-w-[min(65vw,260px)] overflow-hidden shadow-2xl md:max-w-[320px]">
+                    {img ? (
+                      <Image
+                        src={img}
+                        alt={card.title || publicLabel(card)}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width:768px) 65vw, 320px"
+                        unoptimized={img.endsWith(".svg")}
+                        priority
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center bg-surface-2">
+                        <span className="font-slot select-none text-[clamp(2.5rem,14vw,4rem)] leading-none text-ink-faint">
+                          {publicLabel(card)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* 3. ESTADO: SLOT VAZIO (Inativo / Fora da Janela) */}
+                {!isLive && !isOwned && (
+                  <div className="card-slot-empty relative aspect-card w-full max-w-[min(65vw,260px)] overflow-hidden md:max-w-[320px]">
+                    <div className="absolute inset-0 flex items-center justify-center bg-surface-2">
+                      <span className="font-slot select-none text-[clamp(2.5rem,14vw,4rem)] leading-none text-ink-faint">
+                        {publicLabel(card)}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
 
