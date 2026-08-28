@@ -150,7 +150,7 @@ export function CardModal({
           role="dialog"
           aria-modal="true"
           aria-labelledby={titleId}
-          className="relative flex h-dvh w-full flex-col overflow-y-auto md:overflow-hidden md:flex-row md:items-stretch"
+          className="relative flex h-dvh w-full flex-col overflow-hidden md:flex-row md:items-stretch"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Botão Fechar */}
@@ -164,14 +164,14 @@ export function CardModal({
           </button>
 
           {/* Lado Esquerdo: Visual do Card / Pacotinho */}
-          <div className="relative flex shrink-0 items-center justify-center bg-transparent px-3 pt-[calc(2rem+env(safe-area-inset-top,0px))] pb-2 sm:px-6 sm:py-6 md:w-[min(48vw,440px)] md:flex-col md:px-8 md:py-10">
+          <div className="relative flex shrink-0 items-center justify-center bg-transparent px-3 pt-[calc(1.5rem+env(safe-area-inset-top,0px))] pb-1 sm:px-6 sm:py-6 md:w-[min(48vw,460px)] md:flex-col md:px-8 md:py-10">
             {/* 1. SE FOR LIMITED EDITION (LE): Ativa Palco EA FC + Interação de Flip para ver versão Regular */}
             {effectiveLe && showArt ? (
               <EaFcStage active={true} isWalkout={isWalkout}>
                 <div className="flex flex-col items-center">
                   <div
                     onClick={() => setIsFlipped((f) => !f)}
-                    className="group relative aspect-card w-[min(78vw,290px)] cursor-pointer transition-transform duration-500 [transform-style:preserve-3d] hover:scale-[1.02] sm:w-[310px] md:w-[330px]"
+                    className="group relative aspect-card h-[min(38dvh,290px)] max-h-[38dvh] w-auto cursor-pointer transition-transform duration-500 [transform-style:preserve-3d] hover:scale-[1.02] sm:h-[min(44dvh,340px)] md:h-auto md:w-[min(32vw,340px)]"
                     title="Clique para alternar versão Regular / LE"
                   >
                     <div
@@ -187,7 +187,7 @@ export function CardModal({
                           alt={card.title || publicLabel(card)}
                           fill
                           className="object-cover"
-                          sizes="(max-width:768px) 78vw, 330px"
+                          sizes="(max-width:768px) 70vw, 340px"
                           unoptimized={currentImg.endsWith(".svg")}
                           priority
                         />
@@ -218,7 +218,7 @@ export function CardModal({
                   <button
                     type="button"
                     onClick={() => setIsFlipped((f) => !f)}
-                    className="mt-3 flex items-center gap-1.5 rounded-full bg-gold/10 px-3 py-1 text-[11px] font-medium text-gold/90 transition hover:bg-gold/20 hover:text-gold"
+                    className="mt-1.5 flex items-center gap-1.5 rounded-full bg-gold/10 px-2.5 py-0.5 text-[10px] font-medium text-gold/90 transition hover:bg-gold/20 hover:text-gold sm:mt-2 sm:text-[11px]"
                   >
                     <Icon name="sparkles" size={12} />
                     <span>
@@ -233,7 +233,7 @@ export function CardModal({
               <>
                 {/* 2. ESTADO: PACOTE LACRADO (Drop ao vivo pronto para abrir) */}
                 {openingState !== "revealed" && isLive && (
-                  <div className="w-[min(78vw,290px)] sm:w-[300px] md:w-[320px]">
+                  <div className="aspect-card h-[min(38dvh,290px)] max-h-[38dvh] w-auto sm:h-[min(44dvh,340px)] md:h-auto md:w-[min(32vw,330px)]">
                     <TradingCardPack
                       cardNumber={publicLabel(card)}
                       isOpening={openingState === "opening"}
@@ -246,14 +246,14 @@ export function CardModal({
 
                 {/* 3. ESTADO: CARD PADRÃO REVELADO */}
                 {openingState === "revealed" && showArt && (
-                  <div className="animate-card-reveal relative z-10 aspect-card w-[min(78vw,290px)] overflow-hidden rounded-md border border-white/10 shadow-2xl sm:w-[310px] md:w-[330px]">
+                  <div className="animate-card-reveal relative z-10 aspect-card h-[min(38dvh,290px)] max-h-[38dvh] w-auto overflow-hidden rounded-md border border-white/10 shadow-2xl sm:h-[min(44dvh,340px)] md:h-auto md:w-[min(32vw,340px)]">
                     {regularImg ? (
                       <Image
                         src={regularImg}
                         alt={card.title || publicLabel(card)}
                         fill
                         className="object-cover"
-                        sizes="(max-width:768px) 78vw, 330px"
+                        sizes="(max-width:768px) 70vw, 340px"
                         unoptimized={regularImg.endsWith(".svg")}
                         priority
                       />
@@ -269,7 +269,7 @@ export function CardModal({
 
                 {/* 4. ESTADO: SLOT VAZIO (Inativo / Fora da Janela) */}
                 {!isLive && !isOwned && (
-                  <div className="card-slot-empty relative aspect-card w-[min(78vw,290px)] overflow-hidden rounded-md sm:w-[310px] md:w-[330px]">
+                  <div className="card-slot-empty relative aspect-card h-[min(38dvh,290px)] max-h-[38dvh] w-auto overflow-hidden rounded-md sm:h-[min(44dvh,340px)] md:h-auto md:w-[min(32vw,340px)]">
                     <div className="absolute inset-0 flex items-center justify-center bg-surface-2">
                       <span className="font-slot select-none text-[clamp(2.5rem,14vw,4rem)] leading-none text-ink-faint">
                         #{publicLabel(card)}
@@ -283,13 +283,13 @@ export function CardModal({
 
           {/* Lado Direito: Informações e Ações com visual adaptativo para LE */}
           <div
-            className={`flex min-h-0 flex-1 flex-col justify-between px-4 py-4 pb-[calc(1.25rem+env(safe-area-inset-bottom,0px))] sm:px-6 sm:py-6 md:border-l md:px-10 md:py-10 ${
+            className={`flex min-h-0 flex-1 flex-col justify-between overflow-hidden px-4 pt-2 pb-[max(1rem,env(safe-area-inset-bottom,0px))] sm:px-6 sm:py-6 md:border-l md:px-10 md:py-10 ${
               effectiveLe
                 ? "border-gold/20 bg-gradient-to-b from-[#11120e]/60 via-[#090a09] to-[#050605]"
                 : "border-white/[0.06] bg-[#0a0a0a]"
             }`}
           >
-            <div className="min-h-0 space-y-2.5 sm:space-y-3.5">
+            <div className="min-h-0 flex-1 overflow-y-auto space-y-2 pr-1 sm:space-y-3.5">
               <div className="flex items-center gap-2">
                 <span className="font-mono text-xs font-bold tracking-widest text-mint">
                   #{publicLabel(card)}
@@ -304,7 +304,7 @@ export function CardModal({
 
               <h2
                 id={titleId}
-                className={`font-display text-xl font-bold leading-tight sm:text-2xl md:text-3xl ${
+                className={`font-display text-lg font-bold leading-tight sm:text-2xl md:text-3xl ${
                   effectiveLe ? "text-[#fbf2d8]" : "text-ink"
                 }`}
               >
@@ -329,13 +329,13 @@ export function CardModal({
 
               {/* Status do Drop */}
               {isLive && card.drop_ends_at && (
-                <div className="flex flex-wrap items-center gap-2 pt-1">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-mint/15 px-3 py-1 text-[11px] font-semibold text-mint sm:text-xs">
+                <div className="flex flex-wrap items-center gap-2 pt-0.5 sm:pt-1">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-mint/15 px-2.5 py-0.5 text-[10px] font-semibold text-mint sm:px-3 sm:py-1 sm:text-xs">
                     <Icon name="zap" size={12} />
                     Janela Encerra em: {formatCountdown(card.drop_ends_at)}
                   </span>
                   {card.le_enabled && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-gold/15 px-3 py-1 text-[11px] font-semibold text-gold sm:text-xs">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-gold/15 px-2.5 py-0.5 text-[10px] font-semibold text-gold sm:px-3 sm:py-1 sm:text-xs">
                       <Icon name="sparkles" size={12} />
                       Edição Limitada Disponível
                     </span>
@@ -346,7 +346,7 @@ export function CardModal({
               {/* Feedback de Colecionado */}
               {isOwned && (
                 <div
-                  className={`rounded-xl border p-3 ${
+                  className={`rounded-xl border p-2.5 sm:p-3 ${
                     effectiveLe
                       ? "border-gold/30 bg-gold/10"
                       : "border-mint/20 bg-mint/5"
@@ -361,7 +361,7 @@ export function CardModal({
                     Card Colecionado na sua Coleção
                   </p>
                   {effectiveLe && (
-                    <p className="mt-1 text-[11px] text-[#eedba0]">
+                    <p className="mt-0.5 text-[10px] text-[#eedba0] sm:mt-1 sm:text-[11px]">
                       Você conquistou uma cópia Limited Edition exclusiva desta temporada!
                     </p>
                   )}
@@ -375,8 +375,8 @@ export function CardModal({
               )}
             </div>
 
-            {/* Ações Inferiores */}
-            <div className="mt-4 shrink-0 space-y-2 sm:mt-6">
+            {/* Ações Inferiores (Sempre visíveis e descoladas do texto) */}
+            <div className="mt-2 shrink-0 space-y-2 border-t border-white/[0.04] pt-2 sm:mt-6 sm:border-t-0 sm:pt-0">
               {/* Botão para Abrir Pacotinho */}
               {isLive && openingState !== "revealed" && isLoggedIn && (
                 <button
@@ -408,7 +408,7 @@ export function CardModal({
                   <button
                     type="button"
                     onClick={handleDownload}
-                    className="glass-btn-ghost flex-1 items-center justify-center gap-1.5 py-2.5 text-xs font-medium sm:gap-2 sm:py-3 sm:text-sm"
+                    className="glass-btn-ghost flex-1 items-center justify-center gap-1.5 py-2.5 text-xs font-medium active:scale-[0.98] sm:gap-2 sm:py-3 sm:text-sm"
                   >
                     <Icon name="download" size={15} />
                     Baixar Card em HD
@@ -416,7 +416,7 @@ export function CardModal({
                   <button
                     type="button"
                     onClick={onClose}
-                    className="glass-btn flex-1 items-center justify-center py-2.5 text-xs font-semibold sm:py-3 sm:text-sm"
+                    className="glass-btn flex-1 items-center justify-center py-2.5 text-xs font-semibold active:scale-[0.98] sm:py-3 sm:text-sm"
                   >
                     Voltar à Coleção
                   </button>
