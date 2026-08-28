@@ -496,3 +496,168 @@ body {
 .glass-pill:hover {
   border-color: color-mix(in srgb, var(--mint) 35%, transparent);
 }
+
+/* =============================================================================
+   PACOTINHO (BOOSTER PACK) & ANIMAÇÕES DE REVELAÇÃO
+   ============================================================================= */
+
+/* Pacote de figurinha metálico/foil */
+.pack-foil-card {
+  position: relative;
+  border-radius: 14px;
+  background: linear-gradient(
+    135deg,
+    #111512 0%,
+    #1b241e 25%,
+    #25332a 50%,
+    #141a16 75%,
+    #0c0f0d 100%
+  );
+  border: 1px solid rgba(0, 255, 171, 0.3);
+  box-shadow:
+    0 16px 36px rgba(0, 0, 0, 0.6),
+    inset 0 0 20px rgba(0, 255, 171, 0.08),
+    inset 0 1px 2px rgba(255, 255, 255, 0.25);
+  overflow: hidden;
+}
+
+.pack-foil-card::before {
+  content: "";
+  position: absolute;
+  inset: -100%;
+  background: linear-gradient(
+    115deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.03) 35%,
+    rgba(0, 255, 171, 0.22) 48%,
+    rgba(212, 175, 55, 0.28) 52%,
+    rgba(255, 255, 255, 0.08) 60%,
+    transparent 80%
+  );
+  transform: rotate(-25deg);
+  animation: pack-shimmer 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.pack-crimp-top,
+.pack-crimp-bottom {
+  height: 14px;
+  background: repeating-linear-gradient(
+    90deg,
+    #141c17 0px,
+    #141c17 2px,
+    #2f4236 3px,
+    #141c17 4px
+  );
+  border-bottom: 1px solid rgba(0, 255, 171, 0.2);
+}
+.pack-crimp-bottom {
+  border-bottom: none;
+  border-top: 1px solid rgba(0, 255, 171, 0.2);
+}
+
+@keyframes pack-shimmer {
+  0% { transform: translateY(-40%) translateX(-40%) rotate(-25deg); }
+  50% { transform: translateY(40%) translateX(40%) rotate(-25deg); }
+  100% { transform: translateY(-40%) translateX(-40%) rotate(-25deg); }
+}
+
+@keyframes pack-shake {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  15% { transform: scale(1.02) rotate(-2deg); }
+  30% { transform: scale(0.98) rotate(2deg); }
+  45% { transform: scale(1.03) rotate(-3deg); }
+  60% { transform: scale(1.01) rotate(2deg); }
+  75% { transform: scale(1.05) rotate(-1deg); }
+  90% { transform: scale(1.08) rotate(1deg); }
+}
+
+.animate-pack-shake {
+  animation: pack-shake 0.8s cubic-bezier(0.36, 0.07, 0.19, 0.97) infinite;
+}
+
+@keyframes pack-tear-burst {
+  0% {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.06);
+  }
+  100% {
+    clip-path: inset(50% 0 50% 0);
+    opacity: 0;
+    transform: scale(1.2);
+  }
+}
+
+.animate-pack-tear {
+  animation: pack-tear-burst 0.75s forwards cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes card-reveal-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.65) translateY(40px) rotateY(70deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.05) translateY(-8px) rotateY(-8deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0) rotateY(0deg);
+  }
+}
+
+.animate-card-reveal {
+  animation: card-reveal-pop 0.9s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+}
+
+/* Raios dourados rotativos para LE */
+@keyframes le-rays-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.animate-le-rays {
+  animation: le-rays-spin 18s linear infinite;
+}
+
+@keyframes gold-pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 25px rgba(212, 175, 55, 0.45), inset 0 0 15px rgba(212, 175, 55, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 65px rgba(212, 175, 55, 0.85), 0 0 120px rgba(212, 175, 55, 0.4), inset 0 0 30px rgba(212, 175, 55, 0.6);
+  }
+}
+
+.animate-gold-pulse {
+  animation: gold-pulse-glow 2s ease-in-out infinite;
+}
+
+/* Badge de novidade pulsante no card do álbum */
+@keyframes badge-glow {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(0, 255, 171, 0.6);
+  }
+  50% {
+    transform: scale(1.06);
+    box-shadow: 0 0 14px 2px rgba(0, 255, 171, 0.8);
+  }
+}
+
+.animate-badge-pulse {
+  animation: badge-glow 2.2s infinite ease-in-out;
+}
+
+/* Silhueta misteriosa para card não aberto */
+.card-unopened-silhouette {
+  background: radial-gradient(circle at center, #1b241e 0%, #0c0f0d 100%);
+  border: 2px solid color-mix(in srgb, var(--mint) 45%, transparent);
+  box-shadow: inset 0 0 25px rgba(0, 255, 171, 0.12), 0 8px 24px rgba(0, 0, 0, 0.5);
+}

@@ -1,7 +1,9 @@
 import type { LucideIcon, LucideProps } from "lucide-react";
 import {
   BarChart3,
+  Check,
   Download,
+  Gift,
   GripVertical,
   Home,
   LayoutGrid,
@@ -11,6 +13,7 @@ import {
   Plus,
   Save,
   Settings2,
+  Sparkles,
   Trash2,
   Upload,
   User,
@@ -37,6 +40,9 @@ export const Icons = {
   download: Download,
   zap: Zap,
   logout: LogOut,
+  sparkles: Sparkles,
+  check: Check,
+  gift: Gift,
 } as const;
 
 export type IconName = keyof typeof Icons;

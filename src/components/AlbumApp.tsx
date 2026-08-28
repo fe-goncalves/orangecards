@@ -11,6 +11,9 @@ import { ProgressBar } from "./ProgressBar";
 import { CardGrid } from "./CardGrid";
 import { CardModal } from "./CardModal";
 import { SiteShell } from "./SiteShell";
+import { DropExplainerBar } from "./DropExplainerBar";
+import { AlbumCompleteModal } from "./AlbumCompleteModal";
+import { Icon } from "./Icon";
 
 type Props = {
   collection: Collection | null;
@@ -37,9 +40,12 @@ export function AlbumApp({
   const [claims, setClaims] = useState<ClaimMap>(initialClaims);
   const [openCode, setOpenCode] = useState<string | null>(null);
   const [loginNudge, setLoginNudge] = useState(0);
+  const [authBanner, setAuthBanner] = useState<string | null>(null);
+  const [showCelebration, setShowCelebration] = useState(false);
 
   const isLoggedIn = !!user;
 
+  // Supabase Auth State Listener
   useEffect(() => {
     if (demoMode) return;
     const supabase = createClient();
@@ -51,25 +57,43 @@ export function AlbumApp({
     return () => subscription.unsubscribe();
   }, [demoMode]);
 
-  // Deep link só se logado
+  // Tratamento de verificação de e-mail / ?code= ou ?auth=verified
+  useEffect(() => {
+    const code = searchParams.get("code");
+    const authStatus = searchParams.get("auth");
+
+    if (code) {
+      const supabase = createClient();
+      supabase.auth.exchangeCodeForSession(code).then(({ data, error }) => {
+        if (!error && data.user) {
+          setUser(data.user);
+          setAuthBanner("E-mail verificado com sucesso! Sua conta está ativa.");
+        }
+        // Limpa parâmetro da URL
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete("code");
+        const q = params.toString();
+        router.replace(q ? `${pathname}?${q}` : pathname, { scroll: false });
+      });
+    } else if (authStatus === "verified") {
+      setAuthBanner("E-mail verificado com sucesso! Bem-vindo à Orange Cards.");
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("auth");
+      const q = params.toString();
+      router.replace(q ? `${pathname}?${q}` : pathname, { scroll: false });
+    }
+  }, [searchParams, pathname, router]);
+
+  // Deep link de cards
   useEffect(() => {
     const code = searchParams.get("card") ?? initialCardCode;
     if (!code) return;
-    if (!isLoggedIn) {
-      // limpa ?card= para visitante
-      const params = new URLSearchParams(searchParams.toString());
-      if (params.has("card")) {
-        params.delete("card");
-        const q = params.toString();
-        router.replace(q ? `${pathname}?${q}` : pathname, { scroll: false });
-      }
-      return;
-    }
     setOpenCode(code);
-  }, [searchParams, isLoggedIn, initialCardCode, pathname, router]);
+  }, [searchParams, initialCardCode]);
 
   const claimedCount = Object.keys(claims).length;
   const totalSlots = cards.length;
+  const isComplete = totalSlots > 0 && claimedCount === totalSlots;
 
   const statusOf = useCallback(
     (card: Card) =>
@@ -78,14 +102,13 @@ export function AlbumApp({
   );
 
   const openCard = useMemo(() => {
-    if (!openCode || !isLoggedIn) return null;
+    if (!openCode) return null;
     return (
       cards.find((c) => c.code === openCode || c.number === openCode) ?? null
     );
-  }, [cards, openCode, isLoggedIn]);
+  }, [cards, openCode]);
 
   function setCardParam(code: string | null) {
-    if (!isLoggedIn) return;
     setOpenCode(code);
     const params = new URLSearchParams(searchParams.toString());
     if (code) params.set("card", code);
@@ -95,10 +118,16 @@ export function AlbumApp({
   }
 
   function handleClaimed(cardId: string, isLe: boolean) {
-    setClaims((prev) => ({
-      ...prev,
-      [cardId]: { is_le: isLe, claimed_at: new Date().toISOString() },
-    }));
+    setClaims((prev) => {
+      const next = {
+        ...prev,
+        [cardId]: { is_le: isLe, claimed_at: new Date().toISOString() },
+      };
+      if (totalSlots > 0 && Object.keys(next).length === totalSlots) {
+        setShowCelebration(true);
+      }
+      return next;
+    });
   }
 
   return (
@@ -111,6 +140,23 @@ export function AlbumApp({
         />
       }
     >
+      {/* Banner de Boas-Vindas / Confirmação de E-mail */}
+      {authBanner && (
+        <div className="mb-4 flex items-center justify-between rounded-xl border border-mint/30 bg-mint/10 px-4 py-3 text-xs font-semibold text-mint sm:mb-6">
+          <div className="flex items-center gap-2">
+            <Icon name="check" size={16} />
+            <span>{authBanner}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setAuthBanner(null)}
+            className="text-ink-muted hover:text-ink"
+          >
+            <Icon name="close" size={14} />
+          </button>
+        </div>
+      )}
+
       {demoMode && (
         <div className="mb-4 rounded-[var(--radius-sm)] border border-mint/30 bg-mint/10 px-3 py-2.5 text-sm sm:mb-5">
           Modo demo — preencha{" "}
@@ -120,12 +166,21 @@ export function AlbumApp({
         </div>
       )}
 
+      {/* Disclaimers Visuais e Curtos */}
+      <DropExplainerBar />
+
+      {/* Barra de Progresso */}
       {isLoggedIn && (
-        <section className="mb-4 sm:mb-5" aria-label="Progresso">
-          <ProgressBar owned={claimedCount} total={totalSlots} />
+        <section className="mb-6 sm:mb-8" aria-label="Progresso">
+          <ProgressBar
+            owned={claimedCount}
+            total={totalSlots}
+            onShowCelebration={() => setShowCelebration(true)}
+          />
         </section>
       )}
 
+      {/* Grade de Cards do Álbum */}
       <main className="flex-1">
         <CardGrid
           cards={cards}
@@ -136,6 +191,7 @@ export function AlbumApp({
         />
       </main>
 
+      {/* Modal de Abertura de Pacotinho e Detalhes do Card */}
       <CardModal
         card={openCard}
         status={openCard ? statusOf(openCard) : null}
@@ -148,6 +204,15 @@ export function AlbumApp({
           setLoginNudge((n) => n + 1);
         }}
       />
+
+      {/* Modal de Álbum Completo */}
+      {isComplete && (
+        <AlbumCompleteModal
+          total={totalSlots}
+          open={showCelebration}
+          onClose={() => setShowCelebration(false)}
+        />
+      )}
     </SiteShell>
   );
 }
