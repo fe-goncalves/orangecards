@@ -95,6 +95,15 @@ export function AlbumApp({
   const totalSlots = cards.length;
   const isComplete = totalSlots > 0 && claimedCount === totalSlots;
 
+  const userNick = (user?.user_metadata?.nickname as string)?.trim();
+  const shareIdentifier = userNick || user?.id;
+  const shareUrl =
+    user && shareIdentifier
+      ? typeof window !== "undefined"
+        ? `${window.location.origin}/u/${encodeURIComponent(shareIdentifier)}`
+        : `https://cards.copaorange.com.br/u/${encodeURIComponent(shareIdentifier)}`
+      : null;
+
   const statusOf = useCallback(
     (card: Card) =>
       getCardUiStatus(card, Boolean(claims[card.id]), isLoggedIn),
@@ -175,6 +184,7 @@ export function AlbumApp({
           <ProgressBar
             owned={claimedCount}
             total={totalSlots}
+            shareUrl={shareUrl}
             onShowCelebration={() => setShowCelebration(true)}
           />
         </section>

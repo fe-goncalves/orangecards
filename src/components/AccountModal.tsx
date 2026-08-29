@@ -150,7 +150,7 @@ export function AccountModal({ user, onClose, onUpdated }: Props) {
           </div>
 
           {tab === "profile" && (
-            <form onSubmit={saveNickname} className="space-y-3">
+            <form onSubmit={saveNickname} className="space-y-4">
               <GlassField
                 id="acc-nick"
                 label="Nickname"
@@ -161,6 +161,43 @@ export function AccountModal({ user, onClose, onUpdated }: Props) {
                 maxLength={32}
               />
               <GlassSubmit busy={status === "busy"}>Salvar nickname</GlassSubmit>
+
+              {/* Link Compartilhável da Coleção */}
+              <div className="rounded-xl border border-white/[0.08] bg-surface-2/40 p-3 text-left">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-mint">
+                  Link Público da sua Coleção
+                </span>
+                <p className="mt-1 text-xs font-mono text-ink-muted truncate">
+                  {typeof window !== "undefined"
+                    ? `${window.location.origin}/u/${encodeURIComponent(nickname.trim() || user.id)}`
+                    : `https://cards.copaorange.com.br/u/${encodeURIComponent(nickname.trim() || user.id)}`}
+                </p>
+                <div className="mt-2.5 flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const url = typeof window !== "undefined"
+                        ? `${window.location.origin}/u/${encodeURIComponent(nickname.trim() || user.id)}`
+                        : `https://cards.copaorange.com.br/u/${encodeURIComponent(nickname.trim() || user.id)}`;
+                      navigator.clipboard.writeText(url);
+                      setMessage("Link da coleção copiado!");
+                      setStatus("ok");
+                    }}
+                    className="flex-1 rounded-lg border border-white/10 bg-white/[0.04] py-1.5 text-center text-xs font-semibold text-ink transition hover:border-mint/40 hover:text-mint"
+                  >
+                    Copiar Link
+                  </button>
+                  <a
+                    href={`/u/${encodeURIComponent(nickname.trim() || user.id)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-1 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-semibold text-ink transition hover:border-mint/40 hover:text-mint"
+                  >
+                    <span>Abrir</span>
+                    <Icon name="externalLink" size={12} />
+                  </a>
+                </div>
+              </div>
             </form>
           )}
 

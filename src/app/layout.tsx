@@ -32,8 +32,41 @@ const sansFallback = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "ORANGE CARDS",
-  description: "Álbum digital da temporada — colecione na janela do drop.",
+  title: "ORANGE CARDS | SEASON 8",
+  description:
+    "ABRA PACOTINHOS DIGITAIS, COLECIONE CARDS EXCLUSIVOS E CONQUISTE AS CARTAS LIMITED EDITION NA SEASON 8 DA COPA ORANGE.",
+  metadataBase: new URL("https://cards.copaorange.com.br"),
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "ORANGE CARDS | SEASON 8",
+    description:
+      "ABRA PACOTINHOS DIGITAIS, COLECIONE CARDS EXCLUSIVOS E CONQUISTE AS CARTAS LIMITED EDITION NA SEASON 8 DA COPA ORANGE.",
+    url: "https://cards.copaorange.com.br",
+    siteName: "ORANGE CARDS",
+    locale: "pt_BR",
+    type: "website",
+    images: [
+      {
+        url: "/brand/icon.svg",
+        width: 512,
+        height: 512,
+        alt: "ORANGE CARDS | SEASON 8",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary",
+    title: "ORANGE CARDS | SEASON 8",
+    description:
+      "ABRA PACOTINHOS DIGITAIS, COLECIONE CARDS EXCLUSIVOS E CONQUISTE AS CARTAS LIMITED EDITION NA SEASON 8 DA COPA ORANGE.",
+    images: ["/brand/icon.svg"],
+  },
+  icons: {
+    icon: "/icon.svg",
+    apple: "/brand/icon.svg",
+  },
 };
 
 export default function RootLayout({

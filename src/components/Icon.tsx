@@ -1,8 +1,11 @@
 import type { LucideIcon, LucideProps } from "lucide-react";
 import {
+  ArrowRight,
   BarChart3,
   Check,
+  Copy,
   Download,
+  ExternalLink,
   Gift,
   GripVertical,
   Home,
@@ -13,6 +16,7 @@ import {
   Plus,
   Save,
   Settings2,
+  Share2,
   Sparkles,
   Trash2,
   Upload,
@@ -43,6 +47,10 @@ export const Icons = {
   sparkles: Sparkles,
   check: Check,
   gift: Gift,
+  share: Share2,
+  copy: Copy,
+  arrowRight: ArrowRight,
+  externalLink: ExternalLink,
 } as const;
 
 export type IconName = keyof typeof Icons;

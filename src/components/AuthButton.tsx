@@ -84,7 +84,7 @@ export function AuthButton({ initialUser, openSignal = 0, disabled }: Props) {
 
     if (mode === "forgot") {
       const { error } = await supabase.auth.resetPasswordForEmail(mail, {
-        redirectTo: `${origin}/auth/callback`,
+        redirectTo: `${origin}/auth/callback?next=/reset-password`,
       });
       if (error) {
         setStatus("error");

@@ -4,7 +4,16 @@ import { createClient } from "@/lib/supabase/server";
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/?auth=verified";
+  const type = searchParams.get("type");
+  let next = searchParams.get("next");
+
+  if (!next) {
+    if (type === "recovery") {
+      next = "/reset-password";
+    } else {
+      next = "/?auth=verified";
+    }
+  }
 
   if (code) {
     const supabase = await createClient();
