@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1400" viewBox="0 0 500 700" fill="none" role="img" aria-label="Orange Cards Booster Pack Season 8">
+  <defs>
+    <radialGradient id="packBody" cx="50%" cy="35%" r="75%">
+      <stop offset="0%" stop-color="#0d3626"/>
+      <stop offset="45%" stop-color="#082419"/>
+      <stop offset="85%" stop-color="#04140e"/>
+      <stop offset="100%" stop-color="#020a07"/>
+    </radialGradient>
+
+    <linearGradient id="foilSheen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="20%" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="35%" stop-color="#ffffff" stop-opacity="0.04"/>
+      <stop offset="48%" stop-color="#00ffab" stop-opacity="0.2"/>
+      <stop offset="55%" stop-color="#ffffff" stop-opacity="0.08"/>
+      <stop offset="75%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+
+    <pattern id="crimpPattern" width="4" height="14" patternUnits="userSpaceOnUse">
+      <rect width="4" height="14" fill="#03120c"/>
+      <rect x="2" width="1" height="14" fill="#0d3b2a"/>
+      <rect x="3" width="1" height="14" fill="#051c13"/>
+    </pattern>
+
+    <filter id="packShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#000000" flood-opacity="0.8"/>
+    </filter>
+
+    <filter id="mintGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <clipPath id="packClip">
+      <rect x="1" y="1" width="498" height="698" rx="8" ry="8"/>
+    </clipPath>
+  </defs>
+
+  <g filter="url(#packShadow)" clip-path="url(#packClip)">
+  <!-- Body -->
+  <rect x="0" y="0" width="500" height="700" fill="url(#packBody)"/>
+  <rect x="0.5" y="0.5" width="499" height="699" rx="8" stroke="#00ffab" stroke-opacity="0.25"/>
+  <rect x="0" y="0" width="500" height="700" fill="url(#packBody)" opacity="0"/>
+  <rect x="0" y="0" width="500" height="700" fill="none" stroke="#00ffab" stroke-opacity="0.25" rx="8"/>
+  <rect x="1" y="1" width="498" height="698" fill="url(#packBody)" stroke="#00ffab" stroke-opacity="0.25" rx="8"/>
+
+  <!-- Inner glow -->
+  <rect x="8" y="8" width="484" height="684" rx="6" fill="#00ffab" fill-opacity="0.03"/>
+  <rect x="8" y="8" width="484" height="2" rx="1" fill="#ffffff" fill-opacity="0.12"/>
+
+  <!-- Top crimp -->
+  <rect x="0" y="0" width="500" height="14" fill="url(#crimpPattern)"/>
+  <rect x="0" y="13" width="500" height="1" fill="#00ffab" fill-opacity="0.2"/>
+  <rect x="0" y="0" width="500" height="14" fill="#000000" fill-opacity="0.35"/>
+
+  <!-- Background geometry -->
+  <g opacity="0.25" stroke="#00ffab">
+    <line x1="0" y1="125" x2="500" y2="475" stroke-width="0.75"/>
+    <line x1="0" y1="225" x2="500" y2="575" stroke-width="0.5"/>
+    <line x1="0" y1="50" x2="500" y2="400" stroke-width="0.5"/>
+    <circle cx="250" cy="350" r="175" stroke-width="0.5" stroke-dasharray="4 4" fill="none"/>
+  </g>
+
+  <!-- Foil sheen -->
+  <rect x="0" y="14" width="500" height="672" fill="url(#foilSheen)"/>
+
+  <!-- Icon -->
+  <g transform="translate(218, 78) scale(0.52)">
+    <path fill="#F4F7F5" d="M40.6,77.51l-.02,15.86c0,.29-.14.5-.23.62L1.04,15.26c-1.63-3.27-1.31-7.04.7-10.26C3.26,2.55,6.24.12,9.74.11l30.83-.07.04,77.47Z"/>
+    <path fill="#F4F7F5" d="M94.86,93.55c-.12-.13-.24-.35-.24-.66v-15.84s0-77.02,0-77.02l30.61.08c3.56,0,6.58,2.53,8.09,5.04,1.98,3.29,2.17,6.99.53,10.27l-39.01,78.13Z"/>
+    <path fill="#F4F7F5" d="M69.5,117.58l-.03,15.86c0,.59-.07,1.07-.3,1.47-1.15.21-2.2.17-3.35-.02l-.09-17.29.06-117.48c1.26-.15,2.4-.18,3.63,0l.08,117.46Z"/>
+    <path fill="#F4F7F5" d="M55.01,106.34v16.05c0,.23-.19.37-.25.45l-3.34-6.86-.05-17.3-.02-98.59c1.3-.08,2.42-.09,3.64.03l.02,106.23Z"/>
+    <path fill="#F4F7F5" d="M83.86,98.19l-.05,17.3-3.37,6.86c-.21-.11-.24-.34-.24-.67v-15.82s0-105.77,0-105.77c1.25-.11,2.38-.12,3.65-.02v98.11Z"/>
+    <path fill="#00FFAB" d="M80.44,122.35l-3.46,6.95c-1.56,3.14-4.48,5.01-7.81,5.61.23-.4.3-.88.3-1.47l.03-15.86c3.22-.53,6-2.56,7.54-5.56l3.17-6.16v15.82c-.01.32.02.55.23.67Z"/>
+    <path fill="#00FFAB" d="M65.73,117.6l.09,17.29c-3.32-.55-6.23-2.47-7.81-5.59l-3.26-6.46c.06-.08.24-.22.24-.45v-16.05s2.95,5.69,2.95,5.69c1.58,3.06,4.46,5.15,7.78,5.57Z"/>
+    <path fill="#00FFAB" d="M94.86,93.55l-11.05,21.94.05-17.3,10.76-21.14v15.84c0,.31.12.53.24.66Z"/>
+    <path fill="#00FFAB" d="M51.37,98.67l.05,17.3-11.06-21.98c.09-.12.23-.33.23-.62l.02-15.86,10.76,21.15Z"/>
+  </g>
+
+  <!-- Wordmark -->
+  <g transform="translate(183.5, 152) scale(1.02)">
+    <path fill="#f4f7f5" d="M76.04,5.93c-.33,1.78.59,3.34,2.08,3.73,1.66.43,3.32-.29,3.88-2.06,1.22-.13,2.36-.06,3.66-.04-.31,3.31-3.12,5.6-6.46,5.68-4.07.09-7.1-2.97-6.99-6.87S75.65-.33,79.7.03c3.03.27,5.57,2.32,6.01,5.54l-3.69.04c-.49-1.41-1.64-2.15-2.95-2.15-1.43,0-2.72.83-3.02,2.47Z"/>
+    <path fill="#f4f7f5" d="M129.42,12.92l-6.15.06c-.13-1.02-.08-1.93-.02-2.95l4.87-.04c.87,0,1.3-.66,1.18-1.4-.11-.66-.89-.97-1.64-.89-2.32.24-4.35-1.04-4.61-3.23s1.43-4.21,3.87-4.21h5.57c.15.98.11,1.95,0,2.93l-4.62.06c-.64,0-.97.43-.91.94.05.44.6.77,1.14.71,2.42-.26,4.57.91,4.99,3.19s-1,4.81-3.66,4.83Z"/>
+    <path fill="#f4f7f5" d="M45.93,12.9c-1,.17-1.77.08-2.79.05l-3.22-11.01c-.09-.31-.2-.45-.41-.48-.33-.05-.54.08-.61.49l-1.92,10.99c-.42.06-.76.11-1.23-.04L37.95.29c.99-.06,1.83-.09,2.81.04l3.29,11.29c.05.19.78.26.81.1L46.95.4c.05-.29,1.07-.22,1.16.04l-2.18,12.46Z"/>
+    <path fill="#f4f7f5" d="M60.71,7.79l-4.03-.2c-.26-.01-.05-1.03.22-1.05,1.79-.1,3.46-.04,5.31-.02-.64,4.16-4.35,7.03-8.41,6.61-2.43-.25-4.38-1.97-4.62-4.44-.46-4.81,3.57-9.03,8.38-8.62,2.53.22,4.48,2.11,4.64,4.47-.28.22-.99.19-1.23-.02-.54-2.18-2.46-3.57-4.84-3.31-3.26.35-5.61,3.17-5.72,6.5-.06,1.99,1.12,3.71,3.07,4.16,3.08.71,6.16-1.04,7.21-4.09Z"/>
+    <path fill="#f4f7f5" d="M13.34,5.44c-.12,4.66-4.17,8.19-8.68,7.69C2.03,12.84.11,10.89,0,8.25-.18,3.5,3.92-.41,8.65.09c2.79.29,4.77,2.43,4.69,5.35ZM5.73,12.04c3.73-.06,6.4-3.17,6.32-6.74-.06-2.56-2.06-4.2-4.59-4.11-3.49.13-6.11,2.99-6.18,6.5-.04,2.5,1.74,4.38,4.44,4.34Z"/>
+    <path fill="#f4f7f5" d="M21.82,12.89l-1.44-4.93h-3.84s-.92,4.99-.92,4.99c-.41.05-.75.11-1.22-.05L16.62.27l4.81.02c1.24,0,2.65.57,3.12,1.8.87,2.3-.53,4.66-2.83,5.53l1.37,5.32c-.3.05-.97.16-1.26-.04ZM23.36,2.72c-.7-1.93-3.93-1.12-5.71-1.22l-.91,5.2c2.33-.04,4.76.52,6.03-1.1.61-.78.98-1.8.59-2.88Z"/>
+    <path fill="#f4f7f5" d="M32.07,9.14l-4.89.02-1.64,3.65c-.15.34-.85.26-1.28.08L29.6.33c1.12-.12,2.12-.14,3.21,0l.92,12.55c-.17.14-1.08.31-1.19,0-.42-1.19-.14-2.42-.46-3.74ZM32.05,7.87l-.46-6.26c-.23-.27-1.13-.27-1.27.07l-2.58,6.22c1.57.05,2.81.1,4.31-.03Z"/>
+    <path fill="#f4f7f5" d="M71.66,6.71l-6.03.08-.87,4.98,6.48.07c.19.22.01,1.09-.25,1.1l-7.7.05,2.24-12.71,7.37.03c.27.2.15,1.13-.15,1.14l-6.19.06-.69,3.97,5.85.12c.22.2.12.84-.08,1.12Z"/>
+    <path fill="#f4f7f5" d="M122.13,6.62c-.02,3.51-2.41,6.01-5.81,6.29-1.87.15-3.73.05-5.64.03V.29c1.92-.02,3.77-.12,5.64.03,3.41.27,5.83,2.77,5.81,6.3ZM117.49,8.9c1.31-1.23,1.24-3.52-.04-4.66-.9-.8-2.18-.81-3.24-.7v6.06c1.14.07,2.36.16,3.28-.7Z"/>
+    <path fill="#f4f7f5" d="M105.89,13.02l-1.7-3.94c-.17-.38-1.49-.33-1.64.06l-.1,3.82c-1.25.12-2.34.08-3.6.02V.25s6.92.06,6.92.06c2.23.02,3.76,1.85,3.88,4.01.09,1.65-.56,2.99-1.87,4.01l1.82,4.56c-1.16.28-2.31.07-3.71.13ZM105.27,6.03c.85-.59.73-2.19-.13-2.62-.82-.41-1.72-.18-2.58-.16-.08,1.1-.11,2.03.02,3.11.86.01,1.84.27,2.7-.32Z"/>
+    <path fill="#f4f7f5" d="M93.53,10.45c-.81-.57-2.13-.22-3.07-.15l-.56,2.59c-1.25.08-2.43.09-3.73,0l2.89-12.62h5.94s2.84,12.64,2.84,12.64c-1.4.06-2.51.09-3.66-.02-.37-.7-.13-1.72-.63-2.44ZM93.07,7.36l-.61-3.42c-.05-.3-.22-.47-.44-.47s-.41.14-.47.45l-.63,3.52c.77.03,1.4.11,2.15-.07Z"/>
+  </g>
+
+  <!-- Season 8 -->
+  <text x="250" y="310" text-anchor="middle" fill="#00ffab" fill-opacity="0.8" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="500" letter-spacing="3.2">SEASON <tspan fill="#ffffff" font-weight="700">8</tspan></text>
+
+  <!-- Card number -->
+  <text x="250" y="410" text-anchor="middle" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="72" font-weight="900" filter="url(#mintGlow)">#01</text>
+
+  <!-- Drop badge -->
+  <g transform="translate(178, 440)">
+    <rect x="0" y="0" width="144" height="26" rx="13" fill="#00ffab"/>
+    <path d="M18 13 L20.5 17.5 L25.5 18.5 L22 22 L22.8 27 L18 24.5 L13.2 27 L14 22 L10.5 18.5 L15.5 17.5 Z" fill="#04140e" transform="translate(0,-1) scale(0.55)"/>
+    <text x="72" y="17" text-anchor="middle" fill="#04140e" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="700" letter-spacing="1.2">DROP AO VIVO</text>
+  </g>
+
+  <!-- Footer -->
+  <line x1="188" y1="620" x2="212" y2="620" stroke="#00ffab" stroke-opacity="0.4" stroke-width="2"/>
+  <text x="250" y="625" text-anchor="middle" fill="#00ffab" fill-opacity="0.85" font-family="Arial, Helvetica, sans-serif" font-size="9" font-weight="700" letter-spacing="2.8">BOOSTER PACK</text>
+  <line x1="288" y1="620" x2="312" y2="620" stroke="#00ffab" stroke-opacity="0.4" stroke-width="2"/>
+
+  <!-- Bottom crimp -->
+  <rect x="0" y="686" width="500" height="14" fill="url(#crimpPattern)"/>
+  <rect x="0" y="686" width="500" height="1" fill="#00ffab" fill-opacity="0.2"/>
+  <rect x="0" y="686" width="500" height="14" fill="#000000" fill-opacity="0.35"/>
+  </g>
+</svg>

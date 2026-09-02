@@ -3,6 +3,8 @@
 import { useEffect, useState, FormEvent } from "react";
 import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
+import { nicknameValidationMessage } from "@/lib/nickname";
+import { getShareCollectionUrl } from "@/lib/site";
 import { GlassBackdrop, GlassPanel } from "./GlassPanel";
 import { Icon } from "./Icon";
 import { ModalPortal } from "./ModalPortal";
@@ -51,6 +53,12 @@ export function AccountModal({ user, onClose, onUpdated }: Props) {
   async function saveNickname(e: FormEvent) {
     e.preventDefault();
     resetMsg();
+    const nickError = nicknameValidationMessage(nickname);
+    if (nickError) {
+      setStatus("error");
+      setMessage(nickError);
+      return;
+    }
     setStatus("busy");
     const supabase = createClient();
     const { data, error } = await supabase.auth.updateUser({
@@ -157,7 +165,7 @@ export function AccountModal({ user, onClose, onUpdated }: Props) {
                 icon="user"
                 value={nickname}
                 onChange={setNickname}
-                placeholder="Como aparece no álbum"
+                placeholder="Como aparece na coleção"
                 maxLength={32}
               />
               <GlassSubmit busy={status === "busy"}>Salvar nickname</GlassSubmit>
@@ -168,17 +176,15 @@ export function AccountModal({ user, onClose, onUpdated }: Props) {
                   Link Público da sua Coleção
                 </span>
                 <p className="mt-1 text-xs font-mono text-ink-muted truncate">
-                  {typeof window !== "undefined"
-                    ? `${window.location.origin}/u/${encodeURIComponent(nickname.trim() || user.id)}`
-                    : `https://cards.copaorange.com.br/u/${encodeURIComponent(nickname.trim() || user.id)}`}
+                  {getShareCollectionUrl(nickname.trim() || user.id)}
                 </p>
                 <div className="mt-2.5 flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => {
-                      const url = typeof window !== "undefined"
-                        ? `${window.location.origin}/u/${encodeURIComponent(nickname.trim() || user.id)}`
-                        : `https://cards.copaorange.com.br/u/${encodeURIComponent(nickname.trim() || user.id)}`;
+                      const url = getShareCollectionUrl(
+                        nickname.trim() || user.id
+                      );
                       navigator.clipboard.writeText(url);
                       setMessage("Link da coleção copiado!");
                       setStatus("ok");

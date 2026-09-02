@@ -3,6 +3,7 @@
 import { useEffect, useState, FormEvent } from "react";
 import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
+import { nicknameValidationMessage } from "@/lib/nickname";
 import { AccountModal } from "./AccountModal";
 import { GlassBackdrop, GlassPanel } from "./GlassPanel";
 import { Icon } from "./Icon";
@@ -97,12 +98,20 @@ export function AuthButton({ initialUser, openSignal = 0, disabled }: Props) {
     }
 
     if (mode === "signup") {
+      const nick = nickname.trim();
+      const nickError = nicknameValidationMessage(nick);
+      if (nickError) {
+        setStatus("error");
+        setMessage(nickError);
+        return;
+      }
+
       const { data, error } = await supabase.auth.signUp({
         email: mail,
         password,
         options: {
           emailRedirectTo: `${origin}/auth/callback`,
-          data: { nickname: nickname.trim() },
+          data: { nickname: nick },
         },
       });
       if (error) {
@@ -292,8 +301,11 @@ export function AuthButton({ initialUser, openSignal = 0, disabled }: Props) {
                     icon="user"
                     value={nickname}
                     onChange={setNickname}
-                    placeholder="Seu apelido"
+                    placeholder="seu_nickname"
                     maxLength={32}
+                    required
+                    pattern="[a-zA-Z0-9_-]{2,32}"
+                    title="2–32 caracteres: letras, números, _ ou -"
                   />
                 )}
 
@@ -382,6 +394,8 @@ function AuthField({
   minLength,
   maxLength,
   autoComplete,
+  pattern,
+  title,
 }: {
   id: string;
   label: string;
@@ -394,6 +408,8 @@ function AuthField({
   minLength?: number;
   maxLength?: number;
   autoComplete?: string;
+  pattern?: string;
+  title?: string;
 }) {
   return (
     <div>
@@ -412,6 +428,8 @@ function AuthField({
           minLength={minLength}
           maxLength={maxLength}
           autoComplete={autoComplete}
+          pattern={pattern}
+          title={title}
           className="min-w-0 flex-1 bg-transparent text-sm text-ink placeholder:text-ink-faint outline-none"
         />
       </div>

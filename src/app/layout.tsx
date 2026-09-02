@@ -49,6 +49,12 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
+        url: "/brand/exports/booster-pack.png",
+        width: 1000,
+        height: 1400,
+        alt: "ORANGE CARDS | SEASON 8 — Booster Pack",
+      },
+      {
         url: "/brand/icon.svg",
         width: 512,
         height: 512,
@@ -61,7 +67,7 @@ export const metadata: Metadata = {
     title: "ORANGE CARDS | SEASON 8",
     description:
       "ABRA PACOTINHOS DIGITAIS, COLECIONE CARDS EXCLUSIVOS E CONQUISTE AS CARTAS LIMITED EDITION NA SEASON 8 DA COPA ORANGE.",
-    images: ["/brand/icon.svg"],
+    images: ["/brand/exports/booster-pack.png", "/brand/icon.svg"],
   },
   icons: {
     icon: "/icon.svg",

@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /auth/
+Disallow: /api/
+
+Sitemap: https://cards.copaorange.com.br/sitemap.xml

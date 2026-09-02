@@ -9,7 +9,10 @@
     "lint": "eslint",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
-    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
+    "export:booster-pack": "node scripts/export-booster-pack.mjs",
+    "launch:check": "node scripts/launch-check.mjs",
+    "launch:waf": "node scripts/setup-cloudflare-waf.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.5",

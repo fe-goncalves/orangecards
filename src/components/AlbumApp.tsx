@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import type { Card, ClaimMap, Collection } from "@/lib/types";
 import { getCardUiStatus } from "@/lib/cards";
+import { getShareCollectionUrl } from "@/lib/site";
 import { createClient } from "@/lib/supabase/client";
 import { AuthButton } from "./AuthButton";
 import { ProgressBar } from "./ProgressBar";
@@ -98,11 +99,7 @@ export function AlbumApp({
   const userNick = (user?.user_metadata?.nickname as string)?.trim();
   const shareIdentifier = userNick || user?.id;
   const shareUrl =
-    user && shareIdentifier
-      ? typeof window !== "undefined"
-        ? `${window.location.origin}/u/${encodeURIComponent(shareIdentifier)}`
-        : `https://cards.copaorange.com.br/u/${encodeURIComponent(shareIdentifier)}`
-      : null;
+    user && shareIdentifier ? getShareCollectionUrl(shareIdentifier) : null;
 
   const statusOf = useCallback(
     (card: Card) =>
