@@ -135,8 +135,8 @@ export default async function SharedUserPage({ params }: Props) {
   }
 
   const claims: ClaimMap = result.claims ?? {};
-  const totalClaimed = result.stats?.total_claimed ?? Object.keys(claims).length;
-  const totalLe = result.stats?.total_le ?? 0;
+  const totalClaimed = cards.filter((c) => Boolean(claims[c.id])).length;
+  const totalLe = cards.filter((c) => Boolean(claims[c.id]?.is_le)).length;
   const nickname = result.nickname || identifier;
 
   return (

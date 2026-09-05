@@ -180,6 +180,18 @@ async function main() {
     fail("Security headers", String(e));
   }
 
+  // 10. Service Worker (PWA)
+  try {
+    const { res, text } = await fetchText(`${site}/sw.js`);
+    if (res.ok && text.includes("serviceWorker") || text.includes("addEventListener")) {
+      pass("Service Worker (sw.js)");
+    } else {
+      fail("Service Worker (sw.js)", `HTTP ${res.status}`);
+    }
+  } catch (e) {
+    fail("Service Worker (sw.js)", String(e));
+  }
+
   const failed = checks.filter((c) => !c.ok).length;
   console.log(`\n${checks.length - failed}/${checks.length} checks OK`);
 

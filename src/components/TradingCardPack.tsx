@@ -10,6 +10,9 @@ type Props = {
   onClick?: () => void;
   className?: string;
   badgeLabel?: string;
+  /** Contagem regressiva DD:HH:MM:SS (drops futuros) */
+  countdown?: string | null;
+  countdownLabel?: string;
 };
 
 export function TradingCardPack({
@@ -19,6 +22,8 @@ export function TradingCardPack({
   onClick,
   className = "",
   badgeLabel,
+  countdown,
+  countdownLabel = "Começa em",
 }: Props) {
   return (
     <div
@@ -31,15 +36,10 @@ export function TradingCardPack({
           : ""
       } ${className}`}
     >
-      {/* Corpo Metálico do Pacotinho — Verde Esmeralda Foil Premium */}
       <div className="pack-green-body relative flex h-full w-full flex-col justify-between overflow-hidden text-center shadow-2xl">
-        {/* Selo Serrilhado Superior */}
         <div className="pack-crimp-emerald pack-crimp-top relative z-10 h-3.5 w-full shrink-0 border-b border-mint/20" />
-
-        {/* Reflexo Holográfico / Foil Verde */}
         <div className="pack-green-foil-sheen pointer-events-none absolute inset-0 z-[2]" />
 
-        {/* Grafismos de Fundo — Linhas Geométricas Sutis */}
         <div className="pointer-events-none absolute inset-0 z-[1] opacity-25">
           <svg className="h-full w-full" viewBox="0 0 200 280" fill="none">
             <line x1="0" y1="50" x2="200" y2="190" stroke="#00FFAB" strokeWidth="0.75" />
@@ -49,9 +49,7 @@ export function TradingCardPack({
           </svg>
         </div>
 
-        {/* Conteúdo Central Minimalista & Estiloso */}
         <div className="relative z-10 flex flex-1 flex-col items-center justify-between px-2 py-2.5 sm:px-4 sm:py-3.5">
-          {/* Header Superior: Ícone + Wordmark SVG */}
           <div className="flex flex-col items-center gap-1">
             <Image
               src="/brand/icon.svg"
@@ -69,7 +67,6 @@ export function TradingCardPack({
             />
           </div>
 
-          {/* Centro: Season 8 + Numeração Principal */}
           <div className="my-auto flex flex-col items-center">
             <span
               className="text-[9px] uppercase tracking-[0.18em] text-mint/80 sm:text-[11px]"
@@ -81,7 +78,6 @@ export function TradingCardPack({
               SEASON <span className="font-bold text-white">8</span>
             </span>
 
-            {/* Número do Card Limpo e Marcante */}
             <div className="relative my-1 flex items-center justify-center sm:my-1.5">
               <span
                 className="select-none text-2xl font-black tracking-tight text-white drop-shadow-[0_0_16px_rgba(0,255,171,0.5)] sm:text-4xl md:text-5xl"
@@ -93,15 +89,23 @@ export function TradingCardPack({
               </span>
             </div>
 
-            {badgeLabel && (
+            {countdown ? (
+              <div className="mt-0.5 flex flex-col items-center gap-0.5">
+                <span className="text-[8px] font-semibold uppercase tracking-[0.16em] text-mint/70 sm:text-[9px]">
+                  {countdownLabel}
+                </span>
+                <span className="font-mono text-[11px] font-bold tabular-nums tracking-wider text-white sm:text-xs">
+                  {countdown}
+                </span>
+              </div>
+            ) : badgeLabel ? (
               <span className="animate-badge-pulse inline-flex items-center gap-1 rounded-full bg-mint px-2 py-0.5 text-[8px] font-bold uppercase tracking-wider text-[#04140e] shadow-md sm:text-[9px]">
                 <Icon name="sparkles" size={10} />
                 {badgeLabel}
               </span>
-            )}
+            ) : null}
           </div>
 
-          {/* Rodapé: Detalhe Foil Sutil */}
           <div className="flex items-center gap-1 opacity-60">
             <div className="h-0.5 w-4 bg-mint/40 sm:w-6" />
             <span className="text-[7px] font-bold uppercase tracking-[0.18em] text-mint sm:text-[8px]">
@@ -111,7 +115,6 @@ export function TradingCardPack({
           </div>
         </div>
 
-        {/* Selo Serrilhado Inferior */}
         <div className="pack-crimp-emerald pack-crimp-bottom relative z-10 h-3.5 w-full shrink-0 border-t border-mint/20" />
       </div>
     </div>

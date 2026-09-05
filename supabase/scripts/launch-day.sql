@@ -1,22 +1,14 @@
 -- =============================================================================
--- ORANGE CARDS — Script de Go-Live (rodar no momento oficial do lançamento)
+-- ORANGE CARDS — launch-day.sql
 -- =============================================================================
--- ATENÇÃO: isso apaga TODOS os claims de teste e zera contadores de LE.
--- Não execute antes da hora.
+-- Este arquivo NÃO limpa mais coleções.
+--
+-- Se ainda estiver em testes e precisar zerar claims de teste UMA vez:
+-- use: supabase/scripts/wipe-test-claims-once.sql
+-- (exige frase de confirmação explícita)
+--
+-- Depois do lançamento oficial: não existe reset. Travas no banco impedem.
 
-begin;
-
--- 1. Remove todos os cards colecionados durante testes
-truncate table public.claims;
-
--- 2. Zera contador de LEs entregues em cada card
-update public.cards
-set le_awarded = 0
-where le_awarded > 0;
-
-commit;
-
--- Verificação pós-limpeza
 select
   (select count(*)::int from public.claims) as claims_total,
   (select count(*)::int from public.claims where is_le) as le_total,

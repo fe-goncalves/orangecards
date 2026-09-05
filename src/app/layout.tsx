@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo_Black, Barlow_Condensed, Inter } from "next/font/google";
+import { PwaRegister } from "@/components/PwaRegister";
 import "./globals.css";
 
 export const viewport: Viewport = {
@@ -70,9 +71,18 @@ export const metadata: Metadata = {
     images: ["/brand/exports/booster-pack.png", "/brand/icon.svg"],
   },
   icons: {
-    icon: "/icon.svg",
-    apple: "/brand/icon.svg",
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/brand/icon.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/brand/icon.png", sizes: "180x180", type: "image/png" }],
   },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Orange Cards",
+  },
+  applicationName: "Orange Cards",
 };
 
 export default function RootLayout({
@@ -87,8 +97,12 @@ export default function RootLayout({
     >
       <head>
         <link rel="stylesheet" href="https://use.typekit.net/fgw5nwn.css" />
+        <link rel="apple-touch-icon" href="/brand/icon.png" />
       </head>
-      <body className="min-h-full antialiased">{children}</body>
+      <body className="min-h-full antialiased">
+        <PwaRegister />
+        {children}
+      </body>
     </html>
   );
 }

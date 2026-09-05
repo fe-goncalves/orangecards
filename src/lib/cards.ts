@@ -38,8 +38,9 @@ export function isDropPast(card: Card, now: Date = new Date()): boolean {
 /**
  * Regras de view:
  * - owned → arte (LE se is_le)
- * - live → arte + CTA
- * - demais (inativo público, upcoming, missed) → empty_slot
+ * - live → booster + CTA
+ * - upcoming → booster + countdown
+ * - demais → empty_slot
  */
 export function getCardUiStatus(
   card: Card,
@@ -51,7 +52,22 @@ export function getCardUiStatus(
   if (!card.is_public) return "empty_slot";
   if (!card.is_active) return "empty_slot";
   if (isDropLive(card, now)) return "live";
+  if (isDropUpcoming(card, now)) return "upcoming";
   return "empty_slot";
+}
+
+/** Contagem regressiva DD:HH:MM:SS até um instante. */
+export function formatCountdownDHMS(
+  targetIso: string,
+  now: Date = new Date()
+): string {
+  const ms = Math.max(0, new Date(targetIso).getTime() - now.getTime());
+  const totalSec = Math.floor(ms / 1000);
+  const d = Math.floor(totalSec / 86400);
+  const h = Math.floor((totalSec % 86400) / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
+  const s = totalSec % 60;
+  return `${String(d).padStart(2, "0")}:${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
 export function formatCountdown(endsAt: string, now: Date = new Date()): string {

@@ -1,8 +1,15 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import type { Card, CardUiStatus } from "@/lib/types";
-import { displayImagePath, isDropPast, publicLabel, resolveImageUrl } from "@/lib/cards";
+import {
+  displayImagePath,
+  formatCountdownDHMS,
+  isDropPast,
+  publicLabel,
+  resolveImageUrl,
+} from "@/lib/cards";
 import { TradingCardPack } from "./TradingCardPack";
 
 type Props = {
@@ -14,6 +21,17 @@ type Props = {
   onOpen: (code: string) => void;
 };
 
+function useCountdown(targetIso: string | null | undefined) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!targetIso) return;
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [targetIso]);
+  if (!targetIso) return null;
+  return formatCountdownDHMS(targetIso, new Date(now));
+}
+
 export function CardTile({
   card,
   status,
@@ -22,13 +40,16 @@ export function CardTile({
   dimmed = false,
   onOpen,
 }: Props) {
-  const linkId = card.number || card.code;
+  const linkId = card.code || card.number;
   const isOwned = status === "owned";
   const isLive = status === "live";
+  const isUpcoming = status === "upcoming";
   const isPastUncollected = !isOwned && isDropPast(card);
   const isEmptySlot = status === "empty_slot" && !isPastUncollected;
+  const upcomingCountdown = useCountdown(
+    isUpcoming ? card.drop_starts_at : null
+  );
 
-  // 1. Drop Ao Vivo: renderiza o Trading Card Booster Pack realista
   if (isLive) {
     return (
       <TradingCardPack
@@ -40,7 +61,18 @@ export function CardTile({
     );
   }
 
-  // 2. Drop já encerrado e usuário não colecionou: card visível com baixa opacidade e não clicável
+  if (isUpcoming) {
+    return (
+      <TradingCardPack
+        cardNumber={publicLabel(card)}
+        isInteractive={true}
+        countdown={upcomingCountdown}
+        countdownLabel="Começa em"
+        onClick={() => onOpen(linkId)}
+      />
+    );
+  }
+
   if (isPastUncollected) {
     const regularImg = resolveImageUrl(card.image_path);
     return (
@@ -73,7 +105,6 @@ export function CardTile({
     );
   }
 
-  // 3. Card Colecionado ou Slot Vazio
   const showRevealedArt = isOwned;
   const img = showRevealedArt
     ? resolveImageUrl(displayImagePath(card, Boolean(isLe)))
@@ -101,7 +132,6 @@ export function CardTile({
         <span className="album-frame-glow absolute inset-0 z-[1]" aria-hidden />
       )}
 
-      {/* Card Já Aberto & Revelado na Coleção */}
       {showRevealedArt && img && (
         <Image
           src={img}
@@ -114,7 +144,6 @@ export function CardTile({
         />
       )}
 
-      {/* Slot Vazio (Ainda não dropado / Não revelado) */}
       {isEmptySlot && (
         <div className="absolute inset-0 flex items-center justify-center bg-surface-2">
           <span className="font-slot select-none text-[clamp(2.5rem,11vw,4.5rem)] leading-none text-ink-faint">
@@ -123,7 +152,6 @@ export function CardTile({
         </div>
       )}
 
-      {/* Badge LE conquistado */}
       {isLe && isOwned && (
         <span className="absolute right-1 top-1 z-[2] bg-gold px-1.5 py-0.5 text-[9px] font-bold uppercase text-[#1a1400] shadow-sm">
           LE

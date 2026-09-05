@@ -10,6 +10,7 @@ import {
   GripVertical,
   Home,
   LayoutGrid,
+  Loader2,
   Lock,
   LogOut,
   Mail,
@@ -51,6 +52,7 @@ export const Icons = {
   copy: Copy,
   arrowRight: ArrowRight,
   externalLink: ExternalLink,
+  loader: Loader2,
 } as const;
 
 export type IconName = keyof typeof Icons;

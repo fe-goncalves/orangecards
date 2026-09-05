@@ -1,10 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import type { Card, ClaimMap, Collection } from "@/lib/types";
 import { getCardUiStatus } from "@/lib/cards";
+import {
+  fetchUserClaims,
+  mergeClaims,
+  readCachedClaims,
+  writeCachedClaims,
+} from "@/lib/claims";
 import { getShareCollectionUrl } from "@/lib/site";
 import { createClient } from "@/lib/supabase/client";
 import { AuthButton } from "./AuthButton";
@@ -44,21 +50,97 @@ export function AlbumApp({
   const [authBanner, setAuthBanner] = useState<string | null>(null);
   const [showCelebration, setShowCelebration] = useState(false);
 
+  const userRef = useRef(user);
+  userRef.current = user;
+  const totalSlots = cards.length;
+
   const isLoggedIn = !!user;
 
-  // Supabase Auth State Listener
+  const commitClaims = useCallback((userId: string, incoming: ClaimMap) => {
+    setClaims((prev) => {
+      const merged = mergeClaims(
+        mergeClaims(readCachedClaims(userId), prev),
+        incoming
+      );
+      writeCachedClaims(userId, merged);
+      return merged;
+    });
+  }, []);
+
+  useLayoutEffect(() => {
+    if (demoMode) return;
+    const uid = initialUser?.id;
+    if (!uid) return;
+    const cached = readCachedClaims(uid);
+    if (Object.keys(cached).length === 0) return;
+    setClaims((prev) => mergeClaims(cached, prev));
+  }, [demoMode, initialUser?.id]);
+
   useEffect(() => {
     if (demoMode) return;
     const supabase = createClient();
+    let cancelled = false;
+
+    async function hydrateCollection(nextUser: User) {
+      if (cancelled) return;
+      setUser(nextUser);
+      commitClaims(nextUser.id, {});
+      const result = await fetchUserClaims(supabase, nextUser.id);
+      if (cancelled || !result.ok) return;
+      commitClaims(nextUser.id, result.claims);
+    }
+
+    async function restoreSession() {
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (sessionData.session?.user) {
+        await hydrateCollection(sessionData.session.user);
+        return;
+      }
+
+      const { data: userData } = await supabase.auth.getUser();
+      if (userData.user) {
+        await hydrateCollection(userData.user);
+        return;
+      }
+
+      if (initialUser) {
+        await hydrateCollection(initialUser);
+      }
+    }
+
+    void restoreSession();
+
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_e, session) => {
-      setUser(session?.user ?? null);
-    });
-    return () => subscription.unsubscribe();
-  }, [demoMode]);
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "INITIAL_SESSION") return;
 
-  // Tratamento de verificação de e-mail / ?code= ou ?auth=verified
+      if (event === "SIGNED_OUT") {
+        setUser(null);
+        setClaims({});
+        return;
+      }
+
+      if (session?.user) {
+        void hydrateCollection(session.user);
+      }
+    });
+
+    function onVisible() {
+      if (document.visibilityState !== "visible") return;
+      supabase.auth.getUser().then(({ data: { user: nextUser } }) => {
+        if (nextUser) void hydrateCollection(nextUser);
+      });
+    }
+    document.addEventListener("visibilitychange", onVisible);
+
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [demoMode, initialUser, commitClaims]);
+
   useEffect(() => {
     const code = searchParams.get("code");
     const authStatus = searchParams.get("auth");
@@ -70,7 +152,6 @@ export function AlbumApp({
           setUser(data.user);
           setAuthBanner("E-mail verificado com sucesso! Sua conta está ativa.");
         }
-        // Limpa parâmetro da URL
         const params = new URLSearchParams(searchParams.toString());
         params.delete("code");
         const q = params.toString();
@@ -85,15 +166,13 @@ export function AlbumApp({
     }
   }, [searchParams, pathname, router]);
 
-  // Deep link de cards
   useEffect(() => {
     const code = searchParams.get("card") ?? initialCardCode;
     if (!code) return;
     setOpenCode(code);
   }, [searchParams, initialCardCode]);
 
-  const claimedCount = Object.keys(claims).length;
-  const totalSlots = cards.length;
+  const claimedCount = cards.filter((c) => Boolean(claims[c.id])).length;
   const isComplete = totalSlots > 0 && claimedCount === totalSlots;
 
   const userNick = (user?.user_metadata?.nickname as string)?.trim();
@@ -109,8 +188,11 @@ export function AlbumApp({
 
   const openCard = useMemo(() => {
     if (!openCode) return null;
+    // Preferir código interno permanente; número público pode se repetir após aposentadoria
     return (
-      cards.find((c) => c.code === openCode || c.number === openCode) ?? null
+      cards.find((c) => c.code === openCode) ??
+      cards.find((c) => c.number === openCode) ??
+      null
     );
   }, [cards, openCode]);
 
@@ -124,16 +206,21 @@ export function AlbumApp({
   }
 
   function handleClaimed(cardId: string, isLe: boolean) {
-    setClaims((prev) => {
-      const next = {
-        ...prev,
-        [cardId]: { is_le: isLe, claimed_at: new Date().toISOString() },
-      };
-      if (totalSlots > 0 && Object.keys(next).length === totalSlots) {
-        setShowCelebration(true);
-      }
-      return next;
-    });
+    const addition: ClaimMap = {
+      [cardId]: { is_le: isLe, claimed_at: new Date().toISOString() },
+    };
+    const uid = userRef.current?.id;
+    if (uid) {
+      commitClaims(uid, addition);
+    } else {
+      setClaims((prev) => mergeClaims(prev, addition));
+    }
+    const nextOwned = cards.filter(
+      (c) => c.id === cardId || Boolean(claims[c.id])
+    ).length;
+    if (totalSlots > 0 && nextOwned === totalSlots) {
+      setShowCelebration(true);
+    }
   }
 
   return (
@@ -146,7 +233,6 @@ export function AlbumApp({
         />
       }
     >
-      {/* Banner de Boas-Vindas / Confirmação de E-mail */}
       {authBanner && (
         <div className="mb-4 flex items-center justify-between rounded-xl border border-mint/30 bg-mint/10 px-4 py-3 text-xs font-semibold text-mint sm:mb-6">
           <div className="flex items-center gap-2">
@@ -172,10 +258,8 @@ export function AlbumApp({
         </div>
       )}
 
-      {/* Disclaimers Visuais e Curtos */}
       <DropExplainerBar />
 
-      {/* Barra de Progresso */}
       {isLoggedIn && (
         <section className="mb-6 sm:mb-8" aria-label="Progresso">
           <ProgressBar
@@ -187,7 +271,6 @@ export function AlbumApp({
         </section>
       )}
 
-      {/* Grade de Cards do Álbum */}
       <main className="flex-1">
         <CardGrid
           cards={cards}
@@ -198,7 +281,6 @@ export function AlbumApp({
         />
       </main>
 
-      {/* Modal de Abertura de Pacotinho e Detalhes do Card */}
       <CardModal
         card={openCard}
         status={openCard ? statusOf(openCard) : null}
@@ -212,7 +294,6 @@ export function AlbumApp({
         }}
       />
 
-      {/* Modal de Álbum Completo */}
       {isComplete && (
         <AlbumCompleteModal
           total={totalSlots}

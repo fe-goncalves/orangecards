@@ -3,7 +3,10 @@
 import { useEffect, useState, FormEvent } from "react";
 import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
-import { nicknameValidationMessage } from "@/lib/nickname";
+import {
+  nicknameValidationMessage,
+  sanitizeNicknameInput,
+} from "@/lib/nickname";
 import { getShareCollectionUrl } from "@/lib/site";
 import { GlassBackdrop, GlassPanel } from "./GlassPanel";
 import { Icon } from "./Icon";
@@ -53,7 +56,8 @@ export function AccountModal({ user, onClose, onUpdated }: Props) {
   async function saveNickname(e: FormEvent) {
     e.preventDefault();
     resetMsg();
-    const nickError = nicknameValidationMessage(nickname);
+    const nick = sanitizeNicknameInput(nickname);
+    const nickError = nicknameValidationMessage(nick);
     if (nickError) {
       setStatus("error");
       setMessage(nickError);
@@ -61,8 +65,20 @@ export function AccountModal({ user, onClose, onUpdated }: Props) {
     }
     setStatus("busy");
     const supabase = createClient();
+    const current = nicknameOf(user).trim().toLowerCase();
+    if (nick.toLowerCase() !== current) {
+      const { data: availData } = await supabase.rpc("is_nickname_available", {
+        p_nickname: nick,
+      });
+      const avail = availData as { available?: boolean } | null;
+      if (!avail?.available) {
+        setStatus("error");
+        setMessage("Esse nickname já está em uso.");
+        return;
+      }
+    }
     const { data, error } = await supabase.auth.updateUser({
-      data: { nickname: nickname.trim() },
+      data: { nickname: nick },
     });
     if (error) {
       setStatus("error");
@@ -164,8 +180,8 @@ export function AccountModal({ user, onClose, onUpdated }: Props) {
                 label="Nickname"
                 icon="user"
                 value={nickname}
-                onChange={setNickname}
-                placeholder="Como aparece na coleção"
+                onChange={(v) => setNickname(sanitizeNicknameInput(v))}
+                placeholder="tudo_junto_sem_ponto_final"
                 maxLength={32}
               />
               <GlassSubmit busy={status === "busy"}>Salvar nickname</GlassSubmit>

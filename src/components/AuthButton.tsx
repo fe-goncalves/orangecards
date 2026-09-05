@@ -3,7 +3,12 @@
 import { useEffect, useState, FormEvent } from "react";
 import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
-import { nicknameValidationMessage } from "@/lib/nickname";
+import {
+  looksLikeEmail,
+  nicknameValidationMessage,
+  rejectInjectedText,
+  sanitizeNicknameInput,
+} from "@/lib/nickname";
 import { AccountModal } from "./AccountModal";
 import { GlassBackdrop, GlassPanel } from "./GlassPanel";
 import { Icon } from "./Icon";
@@ -16,6 +21,7 @@ type Props = {
 };
 
 type Mode = "signin" | "signup" | "forgot";
+type NickAvailability = "idle" | "checking" | "available" | "taken" | "invalid";
 
 function displayName(user: User) {
   const nick = user.user_metadata?.nickname as string | undefined;
@@ -28,9 +34,13 @@ export function AuthButton({ initialUser, openSignal = 0, disabled }: Props) {
   const [open, setOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const [mode, setMode] = useState<Mode>("signin");
+  const [identifier, setIdentifier] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [nickname, setNickname] = useState("");
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [nickAvailability, setNickAvailability] =
+    useState<NickAvailability>("idle");
   const [status, setStatus] = useState<"idle" | "busy" | "ok" | "error">(
     "idle"
   );
@@ -39,9 +49,15 @@ export function AuthButton({ initialUser, openSignal = 0, disabled }: Props) {
   useEffect(() => {
     if (disabled) return;
     const supabase = createClient();
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) setUser(session.user);
+    });
+
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "INITIAL_SESSION") return;
       setUser(session?.user ?? null);
     });
     return () => subscription.unsubscribe();
@@ -65,6 +81,43 @@ export function AuthButton({ initialUser, openSignal = 0, disabled }: Props) {
     };
   }, [open]);
 
+  useEffect(() => {
+    if (mode !== "signup") {
+      setNickAvailability("idle");
+      return;
+    }
+
+    const nickError = nicknameValidationMessage(nickname);
+    if (nickError) {
+      setNickAvailability(nickname.length === 0 ? "idle" : "invalid");
+      return;
+    }
+
+    setNickAvailability("checking");
+    const supabase = createClient();
+    const handle = window.setTimeout(async () => {
+      const { data, error } = await supabase.rpc("is_nickname_available", {
+        p_nickname: nickname,
+      });
+      if (error) {
+        setNickAvailability("invalid");
+        return;
+      }
+      const result = data as {
+        ok?: boolean;
+        available?: boolean;
+        error?: string;
+      } | null;
+      if (!result?.ok) {
+        setNickAvailability("invalid");
+        return;
+      }
+      setNickAvailability(result.available ? "available" : "taken");
+    }, 400);
+
+    return () => window.clearTimeout(handle);
+  }, [nickname, mode]);
+
   function resetFeedback() {
     setStatus("idle");
     setMessage("");
@@ -75,15 +128,50 @@ export function AuthButton({ initialUser, openSignal = 0, disabled }: Props) {
     resetFeedback();
   }
 
+  function switchMode(next: Mode) {
+    setMode(next);
+    resetFeedback();
+  }
+
+  async function resolveEmailForLogin(raw: string): Promise<string | null> {
+    const value = raw.trim();
+    if (!value) return null;
+
+    if (looksLikeEmail(value)) {
+      return value.toLowerCase();
+    }
+
+    const supabase = createClient();
+    const { data, error } = await supabase.rpc("resolve_login_identifier", {
+      p_identifier: value,
+    });
+    if (error) return null;
+
+    const result = data as { ok?: boolean; email?: string; error?: string } | null;
+    if (!result?.ok || !result.email) return null;
+    return result.email;
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setStatus("busy");
     setMessage("");
     const supabase = createClient();
     const origin = window.location.origin;
-    const mail = email.trim();
 
     if (mode === "forgot") {
+      const inject = rejectInjectedText(identifier, "Identificador");
+      if (inject) {
+        setStatus("error");
+        setMessage(inject);
+        return;
+      }
+      const mail = await resolveEmailForLogin(identifier);
+      if (!mail) {
+        setStatus("error");
+        setMessage("Não encontramos uma conta com esse nickname ou e-mail.");
+        return;
+      }
       const { error } = await supabase.auth.resetPasswordForEmail(mail, {
         redirectTo: `${origin}/auth/callback?next=/reset-password`,
       });
@@ -93,21 +181,65 @@ export function AuthButton({ initialUser, openSignal = 0, disabled }: Props) {
         return;
       }
       setStatus("ok");
-      setMessage("Link de recuperação enviado ao seu e-mail.");
+      setMessage("Link de recuperação enviado ao e-mail da conta.");
       return;
     }
 
     if (mode === "signup") {
-      const nick = nickname.trim();
+      const mailInject = rejectInjectedText(email, "E-mail");
+      if (mailInject) {
+        setStatus("error");
+        setMessage(mailInject);
+        return;
+      }
+      const passInject = rejectInjectedText(password, "Senha");
+      if (passInject) {
+        setStatus("error");
+        setMessage(passInject);
+        return;
+      }
+
+      const nick = sanitizeNicknameInput(nickname);
       const nickError = nicknameValidationMessage(nick);
       if (nickError) {
         setStatus("error");
         setMessage(nickError);
         return;
       }
+      if (nickAvailability === "taken") {
+        setStatus("error");
+        setMessage("Esse nickname já está em uso.");
+        return;
+      }
+      if (nickAvailability === "checking") {
+        setStatus("error");
+        setMessage("Aguarde a verificação do nickname.");
+        return;
+      }
+      if (!acceptedTerms) {
+        setStatus("error");
+        setMessage("Aceite os termos para criar a conta.");
+        return;
+      }
+      if (!looksLikeEmail(email.trim())) {
+        setStatus("error");
+        setMessage("Informe um e-mail válido.");
+        return;
+      }
+
+      const { data: availData } = await supabase.rpc("is_nickname_available", {
+        p_nickname: nick,
+      });
+      const avail = availData as { available?: boolean } | null;
+      if (!avail?.available) {
+        setNickAvailability("taken");
+        setStatus("error");
+        setMessage("Esse nickname já está em uso.");
+        return;
+      }
 
       const { data, error } = await supabase.auth.signUp({
-        email: mail,
+        email: email.trim().toLowerCase(),
         password,
         options: {
           emailRedirectTo: `${origin}/auth/callback`,
@@ -131,6 +263,26 @@ export function AuthButton({ initialUser, openSignal = 0, disabled }: Props) {
       return;
     }
 
+    const inject = rejectInjectedText(identifier, "Identificador");
+    if (inject) {
+      setStatus("error");
+      setMessage(inject);
+      return;
+    }
+    const passInject = rejectInjectedText(password, "Senha");
+    if (passInject) {
+      setStatus("error");
+      setMessage(passInject);
+      return;
+    }
+
+    const mail = await resolveEmailForLogin(identifier);
+    if (!mail) {
+      setStatus("error");
+      setMessage("Nickname ou e-mail não encontrado.");
+      return;
+    }
+
     const { error } = await supabase.auth.signInWithPassword({
       email: mail,
       password,
@@ -140,7 +292,7 @@ export function AuthButton({ initialUser, openSignal = 0, disabled }: Props) {
       setMessage(
         error.message.includes("Email not confirmed")
           ? "Confirme o e-mail antes de entrar."
-          : error.message
+          : "Credenciais inválidas."
       );
       return;
     }
@@ -173,27 +325,17 @@ export function AuthButton({ initialUser, openSignal = 0, disabled }: Props) {
     return (
       <>
         <div className="flex items-center gap-1.5 sm:gap-2">
-          {/* Botão Perfil (Ícone no mobile, Pill com nome no desktop) */}
           <button
             type="button"
             onClick={() => setAccountOpen(true)}
-            className="glass-pill hidden max-w-[160px] truncate sm:inline-flex"
+            className="glass-pill max-w-[140px] truncate sm:max-w-[180px]"
             title={user.email ?? undefined}
+            aria-label={`Conta: ${displayName(user)}`}
           >
             <Icon name="user" size={14} className="shrink-0 text-mint" />
             <span className="truncate">{displayName(user)}</span>
           </button>
-          <button
-            type="button"
-            onClick={() => setAccountOpen(true)}
-            className="glass-icon-btn sm:hidden"
-            aria-label="Perfil"
-            title={user.email ?? undefined}
-          >
-            <Icon name="user" size={16} className="text-mint" />
-          </button>
 
-          {/* Botão Logout */}
           <button
             type="button"
             onClick={signOut}
@@ -221,6 +363,17 @@ export function AuthButton({ initialUser, openSignal = 0, disabled }: Props) {
     forgot: "Recuperar senha",
   };
 
+  const nickHint =
+    nickAvailability === "checking"
+      ? "Verificando disponibilidade…"
+      : nickAvailability === "available"
+        ? "Nickname disponível"
+        : nickAvailability === "taken"
+          ? "Nickname já em uso"
+          : nickAvailability === "invalid" && nickname.length > 0
+            ? nicknameValidationMessage(nickname) ?? "Nickname inválido"
+            : "Tudo junto, sem espaços. Não pode terminar com .";
+
   return (
     <>
       <button
@@ -245,7 +398,7 @@ export function AuthButton({ initialUser, openSignal = 0, disabled }: Props) {
                   ? "Verificação por e-mail na primeira vez"
                   : mode === "forgot"
                     ? "Enviaremos um link para redefinir"
-                    : "Acesse sua coleção"
+                    : "Acesse com nickname ou e-mail"
               }
               onClose={closeAuth}
             >
@@ -258,10 +411,7 @@ export function AuthButton({ initialUser, openSignal = 0, disabled }: Props) {
                         ? "bg-white/10 text-ink"
                         : "text-ink-muted"
                     }`}
-                    onClick={() => {
-                      setMode("signin");
-                      resetFeedback();
-                    }}
+                    onClick={() => switchMode("signin")}
                   >
                     Entrar
                   </button>
@@ -272,10 +422,7 @@ export function AuthButton({ initialUser, openSignal = 0, disabled }: Props) {
                         ? "bg-white/10 text-ink"
                         : "text-ink-muted"
                     }`}
-                    onClick={() => {
-                      setMode("signup");
-                      resetFeedback();
-                    }}
+                    onClick={() => switchMode("signup")}
                   >
                     Criar conta
                   </button>
@@ -283,30 +430,75 @@ export function AuthButton({ initialUser, openSignal = 0, disabled }: Props) {
               )}
 
               <form onSubmit={handleSubmit} className="space-y-3">
-                <AuthField
-                  id="auth-email"
-                  label="E-mail"
-                  icon="mail"
-                  type="email"
-                  value={email}
-                  onChange={setEmail}
-                  autoComplete="email"
-                  required
-                />
+                {mode === "signup" ? (
+                  <AuthField
+                    id="auth-email"
+                    label="E-mail"
+                    icon="mail"
+                    type="email"
+                    value={email}
+                    onChange={setEmail}
+                    autoComplete="email"
+                    required
+                  />
+                ) : (
+                  <AuthField
+                    id="auth-identifier"
+                    label="Nickname ou e-mail"
+                    icon="user"
+                    type="text"
+                    value={identifier}
+                    onChange={setIdentifier}
+                    autoComplete="username"
+                    placeholder="seu_nick ou e-mail"
+                    required
+                  />
+                )}
 
                 {mode === "signup" && (
-                  <AuthField
-                    id="auth-nick"
-                    label="Nickname"
-                    icon="user"
-                    value={nickname}
-                    onChange={setNickname}
-                    placeholder="seu_nickname"
-                    maxLength={32}
-                    required
-                    pattern="[a-zA-Z0-9_-]{2,32}"
-                    title="2–32 caracteres: letras, números, _ ou -"
-                  />
+                  <div>
+                    <label
+                      htmlFor="auth-nick"
+                      className="mb-1.5 block text-xs font-medium text-ink-muted"
+                    >
+                      Nickname
+                    </label>
+                    <div className="glass-input-wrap">
+                      <Icon
+                        name="user"
+                        size={16}
+                        className="shrink-0 text-ink-faint"
+                      />
+                      <input
+                        id="auth-nick"
+                        type="text"
+                        value={nickname}
+                        onChange={(e) =>
+                          setNickname(sanitizeNicknameInput(e.target.value))
+                        }
+                        placeholder="seu_nickname"
+                        maxLength={32}
+                        required
+                        autoComplete="username"
+                        spellCheck={false}
+                        autoCapitalize="off"
+                        className="min-w-0 flex-1 bg-transparent text-sm text-ink placeholder:text-ink-faint outline-none"
+                      />
+                      <NickStatusIcon state={nickAvailability} />
+                    </div>
+                    <p
+                      className={`mt-1.5 text-[11px] ${
+                        nickAvailability === "taken" ||
+                        nickAvailability === "invalid"
+                          ? "text-danger"
+                          : nickAvailability === "available"
+                            ? "text-mint"
+                            : "text-ink-faint"
+                      }`}
+                    >
+                      {nickHint}
+                    </p>
+                  </div>
                 )}
 
                 {mode !== "forgot" && (
@@ -325,14 +517,27 @@ export function AuthButton({ initialUser, openSignal = 0, disabled }: Props) {
                   />
                 )}
 
+                {mode === "signup" && (
+                  <label className="flex cursor-pointer items-start gap-2.5 rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2.5">
+                    <input
+                      type="checkbox"
+                      checked={acceptedTerms}
+                      onChange={(e) => setAcceptedTerms(e.target.checked)}
+                      className="mt-0.5 h-4 w-4 shrink-0 rounded border-white/20 bg-transparent accent-[var(--mint)]"
+                      required
+                    />
+                    <span className="text-[11px] leading-relaxed text-ink-muted">
+                      Aceito os termos de uso e a política de privacidade da
+                      Orange Cards.
+                    </span>
+                  </label>
+                )}
+
                 {mode === "signin" && (
                   <button
                     type="button"
                     className="text-xs text-ink-muted transition hover:text-mint"
-                    onClick={() => {
-                      setMode("forgot");
-                      resetFeedback();
-                    }}
+                    onClick={() => switchMode("forgot")}
                   >
                     Esqueceu a senha?
                   </button>
@@ -342,10 +547,7 @@ export function AuthButton({ initialUser, openSignal = 0, disabled }: Props) {
                   <button
                     type="button"
                     className="text-xs text-ink-muted transition hover:text-mint"
-                    onClick={() => {
-                      setMode("signin");
-                      resetFeedback();
-                    }}
+                    onClick={() => switchMode("signin")}
                   >
                     Voltar ao login
                   </button>
@@ -353,7 +555,13 @@ export function AuthButton({ initialUser, openSignal = 0, disabled }: Props) {
 
                 <button
                   type="submit"
-                  disabled={status === "busy"}
+                  disabled={
+                    status === "busy" ||
+                    (mode === "signup" &&
+                      (nickAvailability === "taken" ||
+                        nickAvailability === "checking" ||
+                        !acceptedTerms))
+                  }
                   className="glass-btn w-full py-2.5 disabled:opacity-50"
                 >
                   {status === "busy"
@@ -380,6 +588,25 @@ export function AuthButton({ initialUser, openSignal = 0, disabled }: Props) {
       )}
     </>
   );
+}
+
+function NickStatusIcon({ state }: { state: NickAvailability }) {
+  if (state === "checking") {
+    return (
+      <Icon
+        name="loader"
+        size={16}
+        className="shrink-0 animate-spin text-ink-faint"
+      />
+    );
+  }
+  if (state === "available") {
+    return <Icon name="check" size={16} className="shrink-0 text-mint" />;
+  }
+  if (state === "taken" || state === "invalid") {
+    return <Icon name="close" size={16} className="shrink-0 text-danger" />;
+  }
+  return null;
 }
 
 function AuthField({
@@ -430,6 +657,7 @@ function AuthField({
           autoComplete={autoComplete}
           pattern={pattern}
           title={title}
+          spellCheck={false}
           className="min-w-0 flex-1 bg-transparent text-sm text-ink placeholder:text-ink-faint outline-none"
         />
       </div>

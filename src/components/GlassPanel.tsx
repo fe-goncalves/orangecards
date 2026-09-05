@@ -21,7 +21,7 @@ export function GlassPanel({
 }: Props) {
   return (
     <div
-      className={`glass-panel modal-scroll relative w-full max-h-[min(92dvh,720px)] overflow-y-auto ${wide ? "max-w-lg" : "max-w-sm"} ${className}`}
+      className={`glass-panel modal-scroll relative mx-auto w-full max-h-[min(88dvh,720px)] overflow-y-auto rounded-2xl shadow-[0_24px_80px_rgba(0,0,0,0.65)] ${wide ? "max-w-lg" : "max-w-sm"} ${className}`}
       role="dialog"
       aria-modal="true"
       aria-label={title}
@@ -67,7 +67,7 @@ export function GlassBackdrop({
     <div
       className={`fixed inset-0 z-[200] flex bg-black/80 backdrop-blur-md ${
         center
-          ? "items-end sm:items-center justify-center p-3 pb-[calc(1rem+env(safe-area-inset-bottom,0px))] sm:p-4"
+          ? "items-center justify-center p-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-[max(1rem,env(safe-area-inset-top,0px))]"
           : ""
       }`}
       role="presentation"

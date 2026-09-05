@@ -5,20 +5,21 @@
  * - slug, name, year, is_active (só uma no site), order_display
  *
  * CARD
- * - code          ID interno único (sistema/admin)
- * - number        Numeração pública (admin)
+ * - id            UUID definitivo (claims usam este ID — nunca number)
+ * - code          Código interno permanente único (independente do number)
+ * - number        Numeração pública (#01) — só exibição; pode repetir após aposentar
  * - title|subtitle|description  opcionais
  * - image + drop_starts_at/drop_ends_at
  * - is_public / is_active
  *     public + !active  → slot vazio no álbum
  *     public + active   → card “de verdade” (drop / claim)
- *     !public           → só admin
+ *     !public           → só admin (aposentado / rascunho)
  * - order_display
  * - LE: le_enabled, le_quota, le_target_pool, le_image_path
  *     se claim.is_le → arte LE SUBSTITUI a padrão na view do usuário
  *
  * CLAIM
- * - user_id + card_id unique, is_le, claimed_at
+ * - user_id + card_id(UUID) unique — identidade do card, não da numeração
  *
  * View do colecionador (álbum):
  * - owned → arte (LE se premiado)
@@ -38,9 +39,9 @@ export type Collection = {
 export type Card = {
   id: string;
   collection_id: string;
-  /** ID interno */
+  /** Código interno permanente (não muda com a numeração pública) */
   code: string;
-  /** Numeração pública */
+  /** Numeração pública exibida (#01) */
   number: string;
   title: string;
   subtitle: string;
@@ -69,10 +70,11 @@ export type Claim = {
 export type ClaimMap = Record<string, { is_le: boolean; claimed_at: string }>;
 
 /**
- * empty_slot = figurinha em branco (inativo, upcoming, missed, private nunca aparece)
- * live / owned = arte visível
+ * empty_slot = figurinha em branco (inativo, missed)
+ * upcoming = drop agendado (booster + countdown)
+ * live / owned = arte / pacote ao vivo
  */
-export type CardUiStatus = "empty_slot" | "live" | "owned";
+export type CardUiStatus = "empty_slot" | "upcoming" | "live" | "owned";
 
 export type AlbumFilter = "all" | "live" | "mine";
 

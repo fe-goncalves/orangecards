@@ -10,6 +10,9 @@ import {
 import type { Card, ClaimMap, Collection } from "@/lib/types";
 import { AlbumApp } from "@/components/AlbumApp";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 type PageProps = {
   searchParams: Promise<{ card?: string }>;
 };
@@ -49,15 +52,36 @@ async function loadAlbum() {
 
   const claims: ClaimMap = {};
   if (user) {
-    const { data: claimRows } = await supabase
-      .from("claims")
-      .select("card_id, is_le, claimed_at")
-      .eq("user_id", user.id);
-    for (const row of claimRows ?? []) {
-      claims[row.card_id] = {
-        is_le: Boolean(row.is_le),
-        claimed_at: row.claimed_at,
-      };
+    const { data: rpcData, error: rpcError } = await supabase.rpc(
+      "get_my_collection"
+    );
+    const payload = rpcData as
+      | {
+          ok?: boolean;
+          claims?: Record<string, { is_le?: boolean; claimed_at?: string }>;
+        }
+      | null;
+
+    if (!rpcError && payload?.ok && payload.claims) {
+      for (const [cardId, row] of Object.entries(payload.claims)) {
+        claims[cardId] = {
+          is_le: Boolean(row.is_le),
+          claimed_at: row.claimed_at || "",
+        };
+      }
+    } else {
+      const { data: claimRows, error: claimError } = await supabase
+        .from("claims")
+        .select("card_id, is_le, claimed_at")
+        .eq("user_id", user.id);
+      if (!claimError) {
+        for (const row of claimRows ?? []) {
+          claims[row.card_id] = {
+            is_le: Boolean(row.is_le),
+            claimed_at: row.claimed_at,
+          };
+        }
+      }
     }
   }
 

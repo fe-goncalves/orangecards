@@ -7,6 +7,7 @@ import {
   displayImagePath,
   downloadCardImage,
   formatCountdown,
+  formatCountdownDHMS,
   publicLabel,
   resolveImageUrl,
 } from "@/lib/cards";
@@ -47,6 +48,7 @@ export function CardModal({
 
   const isOwned = status === "owned";
   const isLive = status === "live";
+  const isUpcoming = status === "upcoming";
 
   useEffect(() => {
     if (!card) return;
@@ -59,10 +61,16 @@ export function CardModal({
   }, [card?.id, isOwned]);
 
   useEffect(() => {
-    if (!card || status !== "live" || !card.drop_ends_at) return;
-    const id = setInterval(() => setTick((n) => n + 1), 1000);
-    return () => clearInterval(id);
-  }, [card?.id, status, card?.drop_ends_at]);
+    if (!card) return;
+    if (status === "live" && card.drop_ends_at) {
+      const id = setInterval(() => setTick((n) => n + 1), 1000);
+      return () => clearInterval(id);
+    }
+    if (status === "upcoming" && card.drop_starts_at) {
+      const id = setInterval(() => setTick((n) => n + 1), 1000);
+      return () => clearInterval(id);
+    }
+  }, [card?.id, status, card?.drop_ends_at, card?.drop_starts_at]);
 
   useEffect(() => {
     if (!card) return;
@@ -231,7 +239,7 @@ export function CardModal({
               </EaFcStage>
             ) : (
               <>
-                {/* 2. ESTADO: PACOTE LACRADO (Drop ao vivo pronto para abrir) */}
+                {/* 2. ESTADO: PACOTE LACRADO (Drop ao vivo) */}
                 {openingState !== "revealed" && isLive && (
                   <div className="w-[min(78vw,315px)] sm:w-[330px] md:w-[350px]">
                     <TradingCardPack
@@ -240,6 +248,22 @@ export function CardModal({
                       isInteractive={isLoggedIn}
                       onClick={handleOpenPack}
                       badgeLabel="Clique para Rasgar"
+                    />
+                  </div>
+                )}
+
+                {/* 2b. ESTADO: DROP FUTURO (booster + countdown) */}
+                {isUpcoming && (
+                  <div className="w-[min(78vw,315px)] sm:w-[330px] md:w-[350px]">
+                    <TradingCardPack
+                      cardNumber={publicLabel(card)}
+                      isInteractive={false}
+                      countdown={
+                        card.drop_starts_at
+                          ? formatCountdownDHMS(card.drop_starts_at)
+                          : null
+                      }
+                      countdownLabel="Começa em"
                     />
                   </div>
                 )}
@@ -268,7 +292,7 @@ export function CardModal({
                 )}
 
                 {/* 4. ESTADO: SLOT VAZIO (Inativo / Fora da Janela) */}
-                {!isLive && !isOwned && (
+                {!isLive && !isUpcoming && !isOwned && (
                   <div className="card-slot-empty relative aspect-card w-[min(78vw,315px)] overflow-hidden rounded-md sm:w-[330px] md:w-[350px]">
                     <div className="absolute inset-0 flex items-center justify-center bg-surface-2">
                       <span className="font-slot select-none text-[clamp(2.5rem,14vw,4rem)] leading-none text-ink-faint">
@@ -312,7 +336,9 @@ export function CardModal({
                   ? card.title
                   : isLive
                     ? "Pacotinho Trading Cards S8"
-                    : "Card Não Revelado"}
+                    : isUpcoming
+                      ? "Drop Agendado"
+                      : "Card Não Revelado"}
               </h2>
 
               {showArt && card.subtitle && (
@@ -340,6 +366,20 @@ export function CardModal({
                       Edição Limitada Disponível
                     </span>
                   )}
+                </div>
+              )}
+
+              {isUpcoming && card.drop_starts_at && (
+                <div className="rounded-xl border border-mint/20 bg-mint/5 p-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-mint">
+                    Drop Agendado
+                  </p>
+                  <p className="mt-1 font-mono text-lg font-bold tabular-nums tracking-wider text-ink">
+                    {formatCountdownDHMS(card.drop_starts_at)}
+                  </p>
+                  <p className="mt-1 text-[11px] text-ink-muted">
+                    dias : horas : minutos : segundos
+                  </p>
                 </div>
               )}
 
