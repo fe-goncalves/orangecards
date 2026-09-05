@@ -10,7 +10,7 @@ type Props = {
 export function SiteShell({ children, right }: Props) {
   return (
     <div className="ds-stage min-h-screen">
-      <div className="relative mx-auto flex min-h-screen max-w-5xl flex-col px-3 pb-8 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] sm:px-5 sm:pt-6">
+      <div className="relative mx-auto flex min-h-screen max-w-5xl flex-col px-4 pb-10 pt-[calc(1rem+env(safe-area-inset-top,0px))] sm:px-6 sm:pb-12 sm:pt-8">
         {/* Header Responsivo e Elegante */}
         <header className="mb-5 flex items-center justify-between gap-2 border-b border-white/[0.06] pb-3.5 sm:mb-8 sm:gap-4 sm:pb-5">
           <Link

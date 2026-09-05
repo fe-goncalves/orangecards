@@ -11,7 +11,6 @@ import {
 import type { Card, ClaimMap, Collection } from "@/lib/types";
 import { SharedAlbumApp } from "@/components/SharedAlbumApp";
 import { SiteShell } from "@/components/SiteShell";
-import { Icon } from "@/components/Icon";
 
 type Props = {
   params: Promise<{ user: string }>;
@@ -19,7 +18,6 @@ type Props = {
 
 interface PublicCollectionResponse {
   ok: boolean;
-  user_id?: string;
   nickname?: string;
   claims?: Record<string, { is_le: boolean; claimed_at: string }>;
   stats?: {
@@ -32,8 +30,8 @@ interface PublicCollectionResponse {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { user: userParam } = await params;
   const decoded = decodeURIComponent(userParam).trim();
-  const title = `COLEÇÃO DE ${decoded.toUpperCase()} | ORANGE CARDS`;
-  const description = `CONFIRA A COLEÇÃO OFICIAL DA SEASON 8 DE ${decoded.toUpperCase()} NA ORANGE CARDS!`;
+  const title = `Coleção de ${decoded} | Orange Cards`;
+  const description = `Coleção Season 8 de ${decoded} na Orange Cards.`;
 
   return {
     title,
@@ -105,29 +103,25 @@ export default async function SharedUserPage({ params }: Props) {
         right={
           <Link
             href="/"
-            className="glass-btn px-3.5 py-1.5 text-xs font-bold text-mint sm:text-sm"
+            className="text-xs font-medium text-ink-muted transition hover:text-mint sm:text-sm"
           >
-            Ir para Home
+            Início
           </Link>
         }
       >
-        <div className="my-auto flex flex-col items-center justify-center py-16 text-center">
-          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-surface-2">
-            <Icon name="user" size={32} className="text-ink-muted" />
-          </div>
-          <h1 className="font-display text-2xl font-black uppercase text-ink sm:text-3xl">
-            COLECIONADOR NÃO ENCONTRADO
+        <div className="my-auto flex flex-col items-center justify-center py-20 text-center">
+          <h1 className="font-display text-xl font-medium tracking-tight text-ink sm:text-2xl">
+            Colecionador não encontrado
           </h1>
-          <p className="mt-2 max-w-md text-xs leading-relaxed text-ink-muted sm:text-sm">
-            Não encontramos nenhuma coleção associada ao usuário &ldquo;{identifier}&rdquo;.
-            Verifique o link ou comece sua própria coleção agora.
+          <p className="mt-2 max-w-sm text-sm leading-relaxed text-ink-muted">
+            Nada associado a &ldquo;{identifier}&rdquo;. Confira o link ou comece a
+            sua coleção.
           </p>
           <Link
             href="/"
-            className="glass-btn mt-6 inline-flex items-center gap-2 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-[#04140e] bg-mint shadow-lg sm:text-sm"
+            className="mt-6 text-sm text-mint transition hover:text-ink"
           >
-            <span>Ver Coleção Geral</span>
-            <Icon name="arrowRight" size={16} />
+            Ir para o álbum
           </Link>
         </div>
       </SiteShell>

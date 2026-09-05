@@ -67,6 +67,20 @@ export function clearCachedClaims(userId: string): void {
   }
 }
 
+export function clearAllCachedClaims(): void {
+  if (typeof window === "undefined") return;
+  try {
+    const keys: string[] = [];
+    for (let i = 0; i < window.localStorage.length; i++) {
+      const key = window.localStorage.key(i);
+      if (key?.startsWith(CACHE_PREFIX)) keys.push(key);
+    }
+    keys.forEach((key) => window.localStorage.removeItem(key));
+  } catch {
+    // ignore
+  }
+}
+
 /** Nunca devolve ok:true com wipe acidental: erro de rede/auth = ok:false. */
 export async function fetchUserClaims(
   supabase: SupabaseClient,

@@ -6,6 +6,7 @@ import type { User } from "@supabase/supabase-js";
 import type { Card, ClaimMap, Collection } from "@/lib/types";
 import { getCardUiStatus } from "@/lib/cards";
 import {
+  clearAllCachedClaims,
   fetchUserClaims,
   mergeClaims,
   readCachedClaims,
@@ -116,6 +117,7 @@ export function AlbumApp({
       if (event === "INITIAL_SESSION") return;
 
       if (event === "SIGNED_OUT") {
+        clearAllCachedClaims();
         setUser(null);
         setClaims({});
         return;
@@ -209,15 +211,14 @@ export function AlbumApp({
     const addition: ClaimMap = {
       [cardId]: { is_le: isLe, claimed_at: new Date().toISOString() },
     };
+    const merged = mergeClaims(claims, addition);
     const uid = userRef.current?.id;
     if (uid) {
       commitClaims(uid, addition);
     } else {
-      setClaims((prev) => mergeClaims(prev, addition));
+      setClaims(merged);
     }
-    const nextOwned = cards.filter(
-      (c) => c.id === cardId || Boolean(claims[c.id])
-    ).length;
+    const nextOwned = cards.filter((c) => Boolean(merged[c.id])).length;
     if (totalSlots > 0 && nextOwned === totalSlots) {
       setShowCelebration(true);
     }

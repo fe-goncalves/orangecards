@@ -133,25 +133,6 @@ export function AuthButton({ initialUser, openSignal = 0, disabled }: Props) {
     resetFeedback();
   }
 
-  async function resolveEmailForLogin(raw: string): Promise<string | null> {
-    const value = raw.trim();
-    if (!value) return null;
-
-    if (looksLikeEmail(value)) {
-      return value.toLowerCase();
-    }
-
-    const supabase = createClient();
-    const { data, error } = await supabase.rpc("resolve_login_identifier", {
-      p_identifier: value,
-    });
-    if (error) return null;
-
-    const result = data as { ok?: boolean; email?: string; error?: string } | null;
-    if (!result?.ok || !result.email) return null;
-    return result.email;
-  }
-
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setStatus("busy");
@@ -166,36 +147,29 @@ export function AuthButton({ initialUser, openSignal = 0, disabled }: Props) {
         setMessage(inject);
         return;
       }
-      const mail = await resolveEmailForLogin(identifier);
-      if (!mail) {
+      try {
+        const res = await fetch("/api/auth/forgot", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ identifier }),
+        });
+        const data = (await res.json()) as { message?: string };
+        setStatus("ok");
+        setMessage(
+          data.message ||
+            "Se existir uma conta com esses dados, enviamos um link de recuperação."
+        );
+      } catch {
         setStatus("error");
-        setMessage("Não encontramos uma conta com esse nickname ou e-mail.");
-        return;
+        setMessage("Não foi possível enviar o link agora. Tente de novo.");
       }
-      const { error } = await supabase.auth.resetPasswordForEmail(mail, {
-        redirectTo: `${origin}/auth/callback?next=/reset-password`,
-      });
-      if (error) {
-        setStatus("error");
-        setMessage(error.message);
-        return;
-      }
-      setStatus("ok");
-      setMessage("Link de recuperação enviado ao e-mail da conta.");
       return;
     }
 
     if (mode === "signup") {
-      const mailInject = rejectInjectedText(email, "E-mail");
-      if (mailInject) {
+      if (!looksLikeEmail(email.trim())) {
         setStatus("error");
-        setMessage(mailInject);
-        return;
-      }
-      const passInject = rejectInjectedText(password, "Senha");
-      if (passInject) {
-        setStatus("error");
-        setMessage(passInject);
+        setMessage("Informe um e-mail válido.");
         return;
       }
 
@@ -221,9 +195,9 @@ export function AuthButton({ initialUser, openSignal = 0, disabled }: Props) {
         setMessage("Aceite os termos para criar a conta.");
         return;
       }
-      if (!looksLikeEmail(email.trim())) {
+      if (password.length < 6) {
         setStatus("error");
-        setMessage("Informe um e-mail válido.");
+        setMessage("Senha com no mínimo 6 caracteres.");
         return;
       }
 
@@ -248,7 +222,15 @@ export function AuthButton({ initialUser, openSignal = 0, disabled }: Props) {
       });
       if (error) {
         setStatus("error");
-        setMessage(error.message);
+        const msg = error.message.toLowerCase();
+        if (msg.includes("nickname_taken") || msg.includes("duplicate")) {
+          setNickAvailability("taken");
+          setMessage("Esse nickname já está em uso.");
+        } else if (msg.includes("invalid_nickname")) {
+          setMessage("Nickname inválido.");
+        } else {
+          setMessage(error.message);
+        }
         return;
       }
       if (data.session) {
@@ -269,39 +251,39 @@ export function AuthButton({ initialUser, openSignal = 0, disabled }: Props) {
       setMessage(inject);
       return;
     }
-    const passInject = rejectInjectedText(password, "Senha");
-    if (passInject) {
-      setStatus("error");
-      setMessage(passInject);
-      return;
-    }
 
-    const mail = await resolveEmailForLogin(identifier);
-    if (!mail) {
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ identifier, password }),
+      });
+      const data = (await res.json()) as { ok?: boolean; error?: string };
+      if (!res.ok || !data.ok) {
+        setStatus("error");
+        setMessage(
+          data.error === "email_unconfirmed"
+            ? "Confirme o e-mail antes de entrar."
+            : "Credenciais inválidas."
+        );
+        return;
+      }
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (session?.user) setUser(session.user);
+      setStatus("ok");
+      closeAuth();
+    } catch {
       setStatus("error");
-      setMessage("Nickname ou e-mail não encontrado.");
-      return;
+      setMessage("Não foi possível entrar agora. Tente de novo.");
     }
-
-    const { error } = await supabase.auth.signInWithPassword({
-      email: mail,
-      password,
-    });
-    if (error) {
-      setStatus("error");
-      setMessage(
-        error.message.includes("Email not confirmed")
-          ? "Confirme o e-mail antes de entrar."
-          : "Credenciais inválidas."
-      );
-      return;
-    }
-    setStatus("ok");
-    closeAuth();
   }
 
   async function signOut() {
     const supabase = createClient();
+    const { clearAllCachedClaims } = await import("@/lib/claims");
+    clearAllCachedClaims();
     await supabase.auth.signOut();
     setUser(null);
     setOpen(false);

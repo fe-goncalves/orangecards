@@ -19,8 +19,9 @@ export async function GET(request: Request) {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      const redirectUrl = next.startsWith("/") ? `${origin}${next}` : next;
-      return NextResponse.redirect(redirectUrl);
+      const safeNext =
+        next.startsWith("/") && !next.startsWith("//") ? next : "/";
+      return NextResponse.redirect(`${origin}${safeNext}`);
     }
   }
 

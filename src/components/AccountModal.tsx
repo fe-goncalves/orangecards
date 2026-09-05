@@ -4,6 +4,7 @@ import { useEffect, useState, FormEvent } from "react";
 import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import {
+  mapNicknameRpcError,
   nicknameValidationMessage,
   sanitizeNicknameInput,
 } from "@/lib/nickname";
@@ -65,27 +66,32 @@ export function AccountModal({ user, onClose, onUpdated }: Props) {
     }
     setStatus("busy");
     const supabase = createClient();
-    const current = nicknameOf(user).trim().toLowerCase();
-    if (nick.toLowerCase() !== current) {
-      const { data: availData } = await supabase.rpc("is_nickname_available", {
-        p_nickname: nick,
-      });
-      const avail = availData as { available?: boolean } | null;
-      if (!avail?.available) {
-        setStatus("error");
-        setMessage("Esse nickname já está em uso.");
-        return;
-      }
+    const { data: rpcData, error: rpcError } = await supabase.rpc(
+      "set_my_nickname",
+      { p_nickname: nick }
+    );
+    if (rpcError) {
+      setStatus("error");
+      setMessage(rpcError.message);
+      return;
     }
-    const { data, error } = await supabase.auth.updateUser({
-      data: { nickname: nick },
-    });
+    const result = rpcData as { ok?: boolean; error?: string; message?: string } | null;
+    if (!result?.ok) {
+      setStatus("error");
+      setMessage(
+        result?.message || mapNicknameRpcError(result?.error)
+      );
+      return;
+    }
+    await supabase.auth.refreshSession();
+    const { data, error } = await supabase.auth.getUser();
     if (error) {
       setStatus("error");
       setMessage(error.message);
       return;
     }
     if (data.user) onUpdated(data.user);
+    setNickname(nick);
     setStatus("ok");
     setMessage("Nickname salvo.");
   }

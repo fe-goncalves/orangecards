@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import type { Card, ClaimMap, Collection } from "@/lib/types";
 import { SiteShell } from "./SiteShell";
 import { SharedCardGrid } from "./SharedCardGrid";
@@ -30,19 +29,23 @@ export function SharedAlbumApp({
   const [copied, setCopied] = useState(false);
 
   const totalCards = cards.length;
-  const pct = totalCards > 0 ? Math.round((totalClaimed / totalCards) * 100) : 0;
+  const seasonLabel = collection?.name?.trim() || "Season 8";
 
   function handleCopyLink() {
     if (typeof window === "undefined") return;
     navigator.clipboard.writeText(window.location.href);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2500);
+    setTimeout(() => setCopied(false), 2000);
   }
 
   function handleShareWhatsApp() {
     if (typeof window === "undefined") return;
-    const text = `Confira minha coleção oficial da Season 8 na Orange Cards (${totalClaimed}/${totalCards} cards conquistados):\n${window.location.href}`;
-    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, "_blank");
+    const text = `Coleção de ${nickname} — Orange Cards\n${window.location.href}`;
+    window.open(
+      `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`,
+      "_blank",
+      "noopener,noreferrer"
+    );
   }
 
   return (
@@ -50,88 +53,60 @@ export function SharedAlbumApp({
       right={
         <Link
           href="/"
-          className="glass-btn inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-mint sm:gap-2 sm:px-4 sm:py-2 sm:text-sm"
+          className="text-xs font-medium text-ink-muted transition hover:text-mint sm:text-sm"
         >
-          <Icon name="sparkles" size={14} />
-          <span>Abrir Minha Coleção</span>
+          Minha coleção
         </Link>
       }
     >
-      {/* Banner Principal do Colecionador */}
-      <section className="mb-6 rounded-2xl border border-white/[0.08] bg-gradient-to-b from-surface/80 to-surface-2/60 p-5 shadow-2xl backdrop-blur-xl sm:mb-8 sm:p-7">
-        <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center gap-3.5 sm:gap-4">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-mint/25 via-mint/10 to-transparent border border-mint/30 shadow-[0_0_20px_var(--mint-glow)] sm:h-16 sm:w-16">
-              <Icon name="user" size={28} className="text-mint" />
-            </div>
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-mint sm:text-xs">
-                {collection?.name ? `${collection.name} • Coleção Pública` : "Coleção Pública • Season 8"}
-              </span>
-              <h1 className="font-display text-2xl font-black uppercase tracking-wide text-ink sm:text-3xl md:text-4xl">
-                {nickname}
-              </h1>
-            </div>
-          </div>
+      <header className="mb-8 sm:mb-10 md:mb-12">
+        <p className="text-[11px] tracking-[0.14em] text-ink-faint uppercase">
+          {seasonLabel}
+        </p>
 
-          {/* Botões de Compartilhar */}
-          <div className="flex flex-wrap items-center gap-2">
+        <div className="mt-2 flex items-start justify-between gap-4">
+          <h1 className="font-display text-[1.75rem] font-medium leading-tight tracking-tight text-ink sm:text-3xl md:text-[2.25rem]">
+            {nickname}
+          </h1>
+
+          <div className="flex shrink-0 items-center gap-0.5 pt-1">
             <button
               type="button"
               onClick={handleCopyLink}
-              className="glass-btn-ghost flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-ink sm:px-4 sm:text-sm"
+              className="glass-icon-btn"
+              aria-label={copied ? "Link copiado" : "Copiar link"}
+              title={copied ? "Copiado" : "Copiar link"}
             >
-              <Icon name={copied ? "check" : "copy"} size={14} className={copied ? "text-mint" : ""} />
-              <span>{copied ? "Link Copiado!" : "Copiar Link"}</span>
+              <Icon
+                name={copied ? "check" : "copy"}
+                size={15}
+                className={copied ? "text-mint" : undefined}
+              />
             </button>
             <button
               type="button"
               onClick={handleShareWhatsApp}
-              className="glass-btn flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-[#04140e] bg-mint hover:brightness-110 sm:px-4 sm:text-sm"
+              className="glass-icon-btn"
+              aria-label="Compartilhar no WhatsApp"
+              title="WhatsApp"
             >
-              <Icon name="share" size={14} />
-              <span>WhatsApp</span>
+              <Icon name="share" size={15} />
             </button>
           </div>
         </div>
 
-        {/* Estatísticas e Barra de Progresso */}
-        <div className="mt-5 border-t border-white/[0.06] pt-5">
-          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-            <div className="flex items-center gap-3">
-              <span className="font-display text-xl font-bold text-ink sm:text-2xl">
-                {totalClaimed}
-                <span className="text-ink-muted">/{totalCards}</span>
-              </span>
-              <span className="text-xs font-semibold uppercase tracking-wider text-ink-muted">
-                Cards Colecionados ({pct}%)
-              </span>
-            </div>
+        <p className="mt-3 text-sm text-ink-muted tabular-nums">
+          <span className="text-ink">{totalClaimed}</span>
+          <span className="text-ink-faint"> / {totalCards}</span>
+          {totalLe > 0 && (
+            <span className="text-ink-faint">
+              {" "}
+              · {totalLe} LE
+            </span>
+          )}
+        </p>
+      </header>
 
-            {totalLe > 0 && (
-              <span className="flex items-center gap-1.5 rounded-full border border-gold/40 bg-gold/15 px-3 py-1 text-xs font-bold text-gold shadow-sm">
-                <Icon name="sparkles" size={13} />
-                <span>{totalLe} Limited Edition{totalLe > 1 ? "s" : ""}</span>
-              </span>
-            )}
-          </div>
-
-          <div
-            className="h-2.5 w-full overflow-hidden rounded-full bg-surface-3"
-            role="progressbar"
-            aria-valuenow={totalClaimed}
-            aria-valuemin={0}
-            aria-valuemax={totalCards}
-          >
-            <div
-              className="h-full bg-gradient-to-r from-mint to-mint-dim transition-all duration-700 ease-out"
-              style={{ width: `${pct}%` }}
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Grade de Cards */}
       <main className="flex-1">
         <SharedCardGrid
           cards={cards}
@@ -140,30 +115,15 @@ export function SharedAlbumApp({
         />
       </main>
 
-      {/* Banner / CTA de Conversão no Rodapé */}
-      <section className="mt-10 rounded-2xl border border-mint/30 bg-gradient-to-br from-[#061e14] via-[#04140e] to-[#020a07] p-6 text-center shadow-[0_10px_40px_rgba(0,255,171,0.15)] sm:mt-12 sm:p-8">
-        <div className="mx-auto flex max-w-xl flex-col items-center">
-          <div className="mb-3 flex items-center justify-center gap-2">
-            <Image src="/brand/icon.svg" alt="Orange Cards" width={32} height={32} className="h-8 w-8" />
-            <Image src="/brand/wordmark.svg" alt="ORANGE CARDS" width={110} height={12} className="h-2.5 w-auto" />
-          </div>
-          <h2 className="font-display text-xl font-black uppercase text-white sm:text-2xl">
-            CRIE SUA COLEÇÃO NA SEASON 8
-          </h2>
-          <p className="mt-2 text-xs leading-relaxed text-ink-muted sm:text-sm">
-            Participe dos drops ao vivo, abra seus pacotinhos e dispute as cartas numeradas Limited Edition.
-          </p>
-          <Link
-            href="/"
-            className="glass-btn mt-5 inline-flex items-center gap-2 px-6 py-3 text-sm font-bold text-[#04140e] bg-mint shadow-xl hover:scale-105 transition-transform"
-          >
-            <span>Começar Minha Coleção</span>
-            <Icon name="arrowRight" size={16} />
+      <footer className="mt-14 border-t border-white/[0.06] pt-8 text-center sm:mt-16">
+        <p className="text-sm text-ink-muted">
+          Quer a sua?{" "}
+          <Link href="/" className="text-mint transition hover:text-ink">
+            Começar coleção
           </Link>
-        </div>
-      </section>
+        </p>
+      </footer>
 
-      {/* Modal de Exibição de Card */}
       <SharedCardModal
         card={selectedCard}
         isLe={selectedCard ? Boolean(claims[selectedCard.id]?.is_le) : false}

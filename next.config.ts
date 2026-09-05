@@ -49,6 +49,15 @@ const nextConfig: NextConfig = {
         ],
       },
       {
+        source: "/u/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "private, no-store, no-cache, must-revalidate",
+          },
+        ],
+      },
+      {
         source: "/sw.js",
         headers: [
           {
