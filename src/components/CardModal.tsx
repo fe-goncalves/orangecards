@@ -23,6 +23,7 @@ type Props = {
   status: CardUiStatus | null;
   isLoggedIn: boolean;
   isLe: boolean;
+  claimBypass?: boolean;
   onClose: () => void;
   onClaimed: (cardId: string, isLe: boolean) => void;
   onRequestLogin: () => void;
@@ -33,6 +34,7 @@ export function CardModal({
   status,
   isLoggedIn,
   isLe,
+  claimBypass = false,
   onClose,
   onClaimed,
   onRequestLogin,
@@ -49,6 +51,14 @@ export function CardModal({
   const isOwned = status === "owned";
   const isLive = status === "live";
   const isUpcoming = status === "upcoming";
+  const canClaimOutsideWindow =
+    claimBypass && isLoggedIn && !isOwned && (isUpcoming || status === "empty_slot");
+  /** Admin: reexibir pack já claimado (só UI, sem apagar claim). */
+  const canReplayOwned =
+    claimBypass && isLoggedIn && isOwned && openingState !== "revealed";
+  const canOpenPack =
+    openingState !== "revealed" &&
+    (isLive || canClaimOutsideWindow || canReplayOwned);
 
   useEffect(() => {
     if (!card) return;
@@ -89,7 +99,8 @@ export function CardModal({
   if (!card || !status) return null;
 
   const effectiveLe = isLe || wonLe;
-  const showArt = openingState === "revealed" || isOwned;
+  // Só mostra arte quando revelado (admin pode “lacrar” de novo na UI)
+  const showArt = openingState === "revealed";
 
   const regularImg = showArt ? resolveImageUrl(card.image_path) : "";
   const leImg = showArt ? resolveImageUrl(card.le_image_path || card.image_path) : "";
@@ -97,14 +108,35 @@ export function CardModal({
 
   void tick;
 
+  function handleResealDemo() {
+    if (!claimBypass || !isOwned) return;
+    setOpeningState("sealed");
+    setIsWalkout(false);
+    setIsFlipped(false);
+    setShowConfetti(false);
+    setFeedback(null);
+  }
+
   async function handleOpenPack() {
     if (!card || !isLoggedIn || openingState === "opening") return;
     setOpeningState("opening");
     setFeedback(null);
 
+    // Replay demo: não chama claim de novo
+    if (isOwned && claimBypass) {
+      await new Promise((resolve) => setTimeout(resolve, 850));
+      if (isLe || wonLe) {
+        setWonLe(true);
+        setIsWalkout(true);
+        setShowConfetti(true);
+      }
+      setOpeningState("revealed");
+      setFeedback("Replay da abertura (demo admin).");
+      return;
+    }
+
     const supabase = createClient();
-    
-    // Animação de tensão do pacote
+
     const [rpcResult] = await Promise.all([
       supabase.rpc("claim_card", { p_card_id: card.id }),
       new Promise((resolve) => setTimeout(resolve, 850)),
@@ -239,21 +271,33 @@ export function CardModal({
               </EaFcStage>
             ) : (
               <>
-                {/* 2. ESTADO: PACOTE LACRADO (Drop ao vivo) */}
-                {openingState !== "revealed" && isLive && (
+                {/* 2. ESTADO: PACOTE (ao vivo, bypass OU replay admin) */}
+                {canOpenPack && (
                   <div className="w-[min(78vw,315px)] sm:w-[330px] md:w-[350px]">
                     <TradingCardPack
                       cardNumber={publicLabel(card)}
                       isOpening={openingState === "opening"}
                       isInteractive={isLoggedIn}
                       onClick={handleOpenPack}
-                      badgeLabel="Clique para Rasgar"
+                      badgeLabel={
+                        canReplayOwned
+                          ? "Replay admin"
+                          : canClaimOutsideWindow && !isLive
+                            ? "Acesso admin"
+                            : "Clique para Rasgar"
+                      }
+                      countdown={
+                        isUpcoming && !canReplayOwned && card.drop_starts_at
+                          ? formatCountdownDHMS(card.drop_starts_at)
+                          : null
+                      }
+                      countdownLabel={isUpcoming && !canReplayOwned ? "Começa em" : undefined}
                     />
                   </div>
                 )}
 
-                {/* 2b. ESTADO: DROP FUTURO (booster + countdown) */}
-                {isUpcoming && (
+                {/* 2b. DROP FUTURO sem bypass: só countdown */}
+                {isUpcoming && !canClaimOutsideWindow && !canReplayOwned && openingState !== "revealed" && (
                   <div className="w-[min(78vw,315px)] sm:w-[330px] md:w-[350px]">
                     <TradingCardPack
                       cardNumber={publicLabel(card)}
@@ -291,8 +335,8 @@ export function CardModal({
                   </div>
                 )}
 
-                {/* 4. ESTADO: SLOT VAZIO (Inativo / Fora da Janela) */}
-                {!isLive && !isUpcoming && !isOwned && (
+                {/* 4. ESTADO: SLOT VAZIO */}
+                {!isLive && !isUpcoming && !isOwned && !canClaimOutsideWindow && (
                   <div className="card-slot-empty relative aspect-card w-[min(78vw,315px)] overflow-hidden rounded-md sm:w-[330px] md:w-[350px]">
                     <div className="absolute inset-0 flex items-center justify-center bg-surface-2">
                       <span className="font-slot select-none text-[clamp(2.5rem,14vw,4rem)] leading-none text-ink-faint">
@@ -334,7 +378,7 @@ export function CardModal({
               >
                 {showArt && card.title
                   ? card.title
-                  : isLive
+                  : canReplayOwned || isLive || canClaimOutsideWindow
                     ? "Pacotinho Trading Cards S8"
                     : isUpcoming
                       ? "Drop Agendado"
@@ -418,7 +462,7 @@ export function CardModal({
             {/* Ações Inferiores (Perfeitamente espaçadas e livres de sobreposição) */}
             <div className="mt-3 shrink-0 space-y-2 border-t border-white/[0.06] pt-3 sm:mt-6 sm:border-t-0 sm:pt-0">
               {/* Botão para Abrir Pacotinho */}
-              {isLive && openingState !== "revealed" && isLoggedIn && (
+              {canOpenPack && isLoggedIn && (
                 <button
                   type="button"
                   disabled={openingState === "opening"}
@@ -426,7 +470,13 @@ export function CardModal({
                   className="glass-btn flex w-full items-center justify-center gap-2 py-3 text-sm font-bold shadow-lg disabled:opacity-50 sm:py-3.5"
                 >
                   <Icon name="sparkles" size={18} />
-                  {openingState === "opening" ? "Abrindo Pacotinho…" : "Rasgar e Abrir Pacotinho"}
+                  {openingState === "opening"
+                    ? "Abrindo Pacotinho…"
+                    : canReplayOwned
+                      ? "Rasgar novamente (demo)"
+                      : canClaimOutsideWindow && !isLive
+                        ? "Abrir agora (admin)"
+                        : "Rasgar e Abrir Pacotinho"}
                 </button>
               )}
 
@@ -444,22 +494,33 @@ export function CardModal({
 
               {/* Botão de Baixar Card já Aberto */}
               {showArt && isOwned && (
-                <div className="flex gap-2.5">
-                  <button
-                    type="button"
-                    onClick={handleDownload}
-                    className="glass-btn-ghost flex-1 items-center justify-center gap-1.5 py-3 text-xs font-semibold active:scale-[0.98] sm:gap-2 sm:text-sm"
-                  >
-                    <Icon name="download" size={16} />
-                    Baixar Card em HD
-                  </button>
-                  <button
-                    type="button"
-                    onClick={onClose}
-                    className="glass-btn flex-1 items-center justify-center py-3 text-xs font-semibold active:scale-[0.98] sm:text-sm"
-                  >
-                    Voltar à Coleção
-                  </button>
+                <div className="flex flex-col gap-2.5">
+                  {claimBypass && (
+                    <button
+                      type="button"
+                      onClick={handleResealDemo}
+                      className="glass-btn-ghost w-full py-2.5 text-xs font-semibold"
+                    >
+                      Fechar pack e reabrir (demo admin)
+                    </button>
+                  )}
+                  <div className="flex gap-2.5">
+                    <button
+                      type="button"
+                      onClick={handleDownload}
+                      className="glass-btn-ghost flex-1 items-center justify-center gap-1.5 py-3 text-xs font-semibold active:scale-[0.98] sm:gap-2 sm:text-sm"
+                    >
+                      <Icon name="download" size={16} />
+                      Baixar Card em HD
+                    </button>
+                    <button
+                      type="button"
+                      onClick={onClose}
+                      className="glass-btn flex-1 items-center justify-center py-3 text-xs font-semibold active:scale-[0.98] sm:text-sm"
+                    >
+                      Voltar à Coleção
+                    </button>
+                  </div>
                 </div>
               )}
 

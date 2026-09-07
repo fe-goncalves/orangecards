@@ -14,6 +14,7 @@ import {
 } from "@/lib/claims";
 import { getShareCollectionUrl } from "@/lib/site";
 import { createClient } from "@/lib/supabase/client";
+import { isClaimBypassUser } from "@/lib/claim-bypass";
 import { AuthButton } from "./AuthButton";
 import { ProgressBar } from "./ProgressBar";
 import { CardGrid } from "./CardGrid";
@@ -295,6 +296,7 @@ export function AlbumApp({
         status={openCard ? statusOf(openCard) : null}
         isLoggedIn={isLoggedIn}
         isLe={openCard ? Boolean(claims[openCard.id]?.is_le) : false}
+        claimBypass={isClaimBypassUser(user?.id)}
         onClose={() => setCardParam(null)}
         onClaimed={handleClaimed}
         onRequestLogin={() => {

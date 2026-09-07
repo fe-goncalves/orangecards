@@ -76,7 +76,9 @@ export function CardTile({
   if (isPastUncollected) {
     const regularImg = resolveImageUrl(card.image_path);
     return (
-      <div
+      <button
+        type="button"
+        onClick={() => onOpen(linkId)}
         className="group relative aspect-card w-full overflow-hidden rounded-md border border-white/[0.04] bg-[#0c0d0c] opacity-25 grayscale-[25%] transition-opacity duration-300 hover:opacity-40"
         title={`#${publicLabel(card)} — Drop Encerrado`}
       >
@@ -101,7 +103,7 @@ export function CardTile({
         <div className="absolute bottom-1.5 left-1.5 z-10 rounded bg-black/80 px-1.5 py-0.5 text-[8px] font-semibold uppercase tracking-wider text-ink-muted">
           #{publicLabel(card)} · Encerrado
         </div>
-      </div>
+      </button>
     );
   }
 
