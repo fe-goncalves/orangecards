@@ -266,6 +266,38 @@
   animation: rise-in var(--dur) var(--ease-out) both;
 }
 
+@keyframes brand-logo-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(0.96);
+  }
+}
+
+@keyframes brand-breathe {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.12);
+  }
+}
+
+@utility animate-brand-logo {
+  animation: brand-logo-pulse 1.8s ease-in-out infinite;
+}
+
+@utility animate-brand-breathe {
+  animation: brand-breathe 2.4s ease-in-out infinite;
+}
+
 @utility font-display {
   font-family: var(--font-display);
   letter-spacing: 0.02em;

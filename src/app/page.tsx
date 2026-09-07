@@ -9,6 +9,7 @@ import {
 } from "@/lib/demo-data";
 import type { Card, ClaimMap, Collection } from "@/lib/types";
 import { AlbumApp } from "@/components/AlbumApp";
+import { BrandLoader } from "@/components/BrandLoader";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -94,26 +95,30 @@ async function loadAlbum() {
   };
 }
 
-export default async function HomePage({ searchParams }: PageProps) {
+async function HomeAlbum({
+  searchParams,
+}: {
+  searchParams: Promise<{ card?: string }>;
+}) {
   const params = await searchParams;
   const album = await loadAlbum();
 
   return (
-    <Suspense
-      fallback={
-        <div className="flex min-h-screen items-center justify-center text-ink-muted">
-          Carregando coleção…
-        </div>
-      }
-    >
-      <AlbumApp
-        collection={album.collection}
-        cards={album.cards}
-        initialClaims={album.claims}
-        initialUser={album.user}
-        initialCardCode={params.card ?? null}
-        demoMode={album.demoMode}
-      />
+    <AlbumApp
+      collection={album.collection}
+      cards={album.cards}
+      initialClaims={album.claims}
+      initialUser={album.user}
+      initialCardCode={params.card ?? null}
+      demoMode={album.demoMode}
+    />
+  );
+}
+
+export default function HomePage({ searchParams }: PageProps) {
+  return (
+    <Suspense fallback={<BrandLoader label="Abrindo o álbum…" />}>
+      <HomeAlbum searchParams={searchParams} />
     </Suspense>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, FormEvent } from "react";
+import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -22,6 +23,8 @@ type Props = {
 
 type Mode = "signin" | "signup" | "forgot";
 type NickAvailability = "idle" | "checking" | "available" | "taken" | "invalid";
+
+const RESEND_COOLDOWN_MS = 60_000;
 
 function displayName(user: User) {
   const nick = user.user_metadata?.nickname as string | undefined;
@@ -45,6 +48,23 @@ export function AuthButton({ initialUser, openSignal = 0, disabled }: Props) {
     "idle"
   );
   const [message, setMessage] = useState("");
+  const [pendingVerifyEmail, setPendingVerifyEmail] = useState<string | null>(
+    null
+  );
+  const [resendUntil, setResendUntil] = useState(0);
+  const [resendBusy, setResendBusy] = useState(false);
+  const [nowTick, setNowTick] = useState(() => Date.now());
+
+  useEffect(() => {
+    if (resendUntil <= Date.now()) return;
+    const id = window.setInterval(() => setNowTick(Date.now()), 1000);
+    return () => window.clearInterval(id);
+  }, [resendUntil]);
+
+  const resendSecondsLeft = Math.max(
+    0,
+    Math.ceil((resendUntil - nowTick) / 1000)
+  );
 
   useEffect(() => {
     if (disabled) return;
@@ -126,11 +146,42 @@ export function AuthButton({ initialUser, openSignal = 0, disabled }: Props) {
   function closeAuth() {
     setOpen(false);
     resetFeedback();
+    setPendingVerifyEmail(null);
   }
 
   function switchMode(next: Mode) {
     setMode(next);
     resetFeedback();
+    setPendingVerifyEmail(null);
+  }
+
+  function enterVerifyPending(mail: string) {
+    setPendingVerifyEmail(mail.trim().toLowerCase());
+    setResendUntil(Date.now() + RESEND_COOLDOWN_MS);
+    setStatus("ok");
+    setMessage("");
+  }
+
+  async function resendVerification(targetEmail: string) {
+    if (resendSecondsLeft > 0 || resendBusy) return;
+    setResendBusy(true);
+    setMessage("");
+    const supabase = createClient();
+    const origin = window.location.origin;
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email: targetEmail.trim().toLowerCase(),
+      options: { emailRedirectTo: `${origin}/auth/callback` },
+    });
+    setResendBusy(false);
+    if (error) {
+      setStatus("error");
+      setMessage(error.message);
+      return;
+    }
+    setResendUntil(Date.now() + RESEND_COOLDOWN_MS);
+    setStatus("ok");
+    setMessage("Novo e-mail enviado. Confira a caixa de entrada e o spam.");
   }
 
   async function handleSubmit(e: FormEvent) {
@@ -238,10 +289,7 @@ export function AuthButton({ initialUser, openSignal = 0, disabled }: Props) {
         closeAuth();
         return;
       }
-      setStatus("ok");
-      setMessage(
-        "Conta criada. Confira seu e-mail para verificar antes de entrar."
-      );
+      enterVerifyPending(email.trim());
       return;
     }
 
@@ -260,12 +308,24 @@ export function AuthButton({ initialUser, openSignal = 0, disabled }: Props) {
       });
       const data = (await res.json()) as { ok?: boolean; error?: string };
       if (!res.ok || !data.ok) {
+        if (data.error === "email_unconfirmed") {
+          const mail = looksLikeEmail(identifier)
+            ? identifier.trim().toLowerCase()
+            : email.trim().toLowerCase();
+          if (mail && looksLikeEmail(mail)) {
+            enterVerifyPending(mail);
+            setStatus("error");
+            setMessage("Confirme o e-mail antes de entrar.");
+          } else {
+            setStatus("error");
+            setMessage(
+              "Confirme o e-mail antes de entrar. Se não recebeu, use o e-mail da conta em Criar conta para reenviar."
+            );
+          }
+          return;
+        }
         setStatus("error");
-        setMessage(
-          data.error === "email_unconfirmed"
-            ? "Confirme o e-mail antes de entrar."
-            : "Credenciais inválidas."
-        );
+        setMessage("Credenciais inválidas.");
         return;
       }
       const {
@@ -374,16 +434,75 @@ export function AuthButton({ initialUser, openSignal = 0, disabled }: Props) {
         <ModalPortal>
           <GlassBackdrop onClose={closeAuth}>
             <GlassPanel
-              title={titles[mode]}
+              title={
+                pendingVerifyEmail
+                  ? "Verifique seu e-mail"
+                  : titles[mode]
+              }
               subtitle={
-                mode === "signup"
-                  ? "Verificação por e-mail na primeira vez"
-                  : mode === "forgot"
-                    ? "Enviaremos um link para redefinir"
-                    : "Acesse com nickname ou e-mail"
+                pendingVerifyEmail
+                  ? "Quase lá — ative a conta pelo link enviado"
+                  : mode === "signup"
+                    ? "Verificação por e-mail na primeira vez"
+                    : mode === "forgot"
+                      ? "Enviaremos um link para redefinir"
+                      : "Acesse com nickname ou e-mail"
               }
               onClose={closeAuth}
             >
+              {pendingVerifyEmail ? (
+                <div className="space-y-4">
+                  <div className="rounded-xl border border-mint/20 bg-mint/5 px-3.5 py-3">
+                    <p className="text-sm text-ink">
+                      Enviamos um link para{" "}
+                      <span className="font-medium text-mint">
+                        {pendingVerifyEmail}
+                      </span>
+                      .
+                    </p>
+                    <p className="mt-2 text-[11px] leading-relaxed text-ink-muted">
+                      Não encontrou? Confira a pasta de{" "}
+                      <span className="text-ink">spam / lixo eletrônico</span> e
+                      promoções. O e-mail pode levar alguns minutos.
+                    </p>
+                  </div>
+
+                  {message && (
+                    <p
+                      className={`text-xs ${status === "error" ? "text-danger" : "text-mint"}`}
+                      role="status"
+                    >
+                      {message}
+                    </p>
+                  )}
+
+                  <button
+                    type="button"
+                    disabled={resendBusy || resendSecondsLeft > 0}
+                    onClick={() => resendVerification(pendingVerifyEmail)}
+                    className="glass-btn w-full py-2.5 disabled:opacity-50"
+                  >
+                    {resendBusy
+                      ? "Enviando…"
+                      : resendSecondsLeft > 0
+                        ? `Reenviar em ${resendSecondsLeft}s`
+                        : "Reenviar e-mail de verificação"}
+                  </button>
+
+                  <button
+                    type="button"
+                    className="w-full text-xs text-ink-muted transition hover:text-mint"
+                    onClick={() => {
+                      setPendingVerifyEmail(null);
+                      setMode("signin");
+                      resetFeedback();
+                    }}
+                  >
+                    Já verifiquei — entrar
+                  </button>
+                </div>
+              ) : (
+              <>
               {mode !== "forgot" && (
                 <div className="mb-4 flex gap-1 rounded-xl bg-white/[0.04] p-1">
                   <button
@@ -509,8 +628,17 @@ export function AuthButton({ initialUser, openSignal = 0, disabled }: Props) {
                       required
                     />
                     <span className="text-[11px] leading-relaxed text-ink-muted">
-                      Aceito os termos de uso e a política de privacidade da
-                      Orange Cards.
+                      Aceito os{" "}
+                      <Link
+                        href="/termos"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-mint underline-offset-2 hover:underline"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        termos de uso e privacidade
+                      </Link>{" "}
+                      da Orange Cards.
                     </span>
                   </label>
                 )}
@@ -563,6 +691,8 @@ export function AuthButton({ initialUser, openSignal = 0, disabled }: Props) {
                 >
                   {message}
                 </p>
+              )}
+              </>
               )}
             </GlassPanel>
           </GlassBackdrop>

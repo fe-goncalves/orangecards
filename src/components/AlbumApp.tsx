@@ -165,6 +165,14 @@ export function AlbumApp({
       params.delete("auth");
       const q = params.toString();
       router.replace(q ? `${pathname}?${q}` : pathname, { scroll: false });
+    } else if (authStatus === "error") {
+      setAuthBanner(
+        "Não foi possível verificar o e-mail. Peça um novo link em Entrar."
+      );
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("auth");
+      const q = params.toString();
+      router.replace(q ? `${pathname}?${q}` : pathname, { scroll: false });
     }
   }, [searchParams, pathname, router]);
 

@@ -142,7 +142,12 @@ async function main() {
   // 7. Shared collection route (404 esperado para user inexistente — mas página deve renderizar)
   try {
     const { res, text } = await fetchText(`${site}/u/__launch_check__`);
-    if (res.ok && text.includes("NÃO ENCONTRADO")) {
+    if (
+      res.ok &&
+      (text.includes("Colecionador não encontrado") ||
+        text.includes("NÃO ENCONTRADO") ||
+        text.includes("não encontrado"))
+    ) {
       pass("Rota /u/[user] (coleção pública)");
     } else if (res.ok) {
       pass("Rota /u/[user]", "responde (verificar RPC no Supabase)");
@@ -151,6 +156,39 @@ async function main() {
     }
   } catch (e) {
     fail("Rota /u/[user]", String(e));
+  }
+
+  // 7b. Termos
+  try {
+    const { res, text } = await fetchText(`${site}/termos`);
+    if (res.ok && text.toLowerCase().includes("termos")) {
+      pass("Página /termos");
+    } else {
+      fail("Página /termos", `HTTP ${res.status}`);
+    }
+  } catch (e) {
+    fail("Página /termos", String(e));
+  }
+
+  // 7c. Auth login API exists (OPTIONS/POST shape — sem credenciais)
+  try {
+    const res = await fetch(`${site}/api/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "User-Agent": "OrangeCards-LaunchCheck/1.0",
+      },
+      body: JSON.stringify({}),
+    });
+    if (res.status === 400 || res.status === 401) {
+      pass("API /api/auth/login", `HTTP ${res.status}`);
+    } else if (res.status === 503) {
+      fail("API /api/auth/login", "service_role ausente (503)");
+    } else {
+      pass("API /api/auth/login", `HTTP ${res.status}`);
+    }
+  } catch (e) {
+    fail("API /api/auth/login", String(e));
   }
 
   // 8. Admin

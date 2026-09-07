@@ -64,11 +64,11 @@ export const metadata: Metadata = {
     ],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "ORANGE CARDS | SEASON 8",
     description:
       "ABRA PACOTINHOS DIGITAIS, COLECIONE CARDS EXCLUSIVOS E CONQUISTE AS CARTAS LIMITED EDITION NA SEASON 8 DA COPA ORANGE.",
-    images: ["/brand/exports/booster-pack.png", "/brand/icon.svg"],
+    images: ["/brand/exports/booster-pack.png"],
   },
   icons: {
     icon: [
