@@ -324,6 +324,13 @@ export function AuthButton({ initialUser, openSignal = 0, disabled }: Props) {
           }
           return;
         }
+        if (data.error === "server_misconfigured" || res.status === 503) {
+          setStatus("error");
+          setMessage(
+            "Login por nickname temporariamente indisponível. Entre com o e-mail ou tente mais tarde."
+          );
+          return;
+        }
         setStatus("error");
         setMessage("Credenciais inválidas.");
         return;
