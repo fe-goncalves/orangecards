@@ -266,6 +266,21 @@
   animation: rise-in var(--dur) var(--ease-out) both;
 }
 
+@keyframes onboard-step-in {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@utility animate-onboard-step {
+  animation: onboard-step-in 0.35s var(--ease-out) both;
+}
+
 @keyframes brand-logo-pulse {
   0%,
   100% {

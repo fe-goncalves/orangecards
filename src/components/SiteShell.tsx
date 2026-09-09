@@ -55,6 +55,30 @@ export function SiteShell({ children, right }: Props) {
         </header>
 
         <div className="animate-rise flex flex-1 flex-col">{children}</div>
+
+        <footer className="mt-10 border-t border-white/[0.06] pt-5 sm:mt-12 sm:pt-6">
+          <p className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center text-[11px] text-ink-faint sm:text-xs">
+            <a
+              href="https://instagram.com/copaorange"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="transition hover:text-mint"
+            >
+              Instagram @copaorange
+            </a>
+            <span aria-hidden className="text-white/15">
+              ·
+            </span>
+            <a
+              href="https://copaorange.com.br"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="transition hover:text-mint"
+            >
+              copaorange.com.br
+            </a>
+          </p>
+        </footer>
       </div>
     </div>
   );

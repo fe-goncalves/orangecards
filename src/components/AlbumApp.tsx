@@ -22,6 +22,10 @@ import { CardModal } from "./CardModal";
 import { SiteShell } from "./SiteShell";
 import { DropExplainerBar } from "./DropExplainerBar";
 import { AlbumCompleteModal } from "./AlbumCompleteModal";
+import {
+  OnboardingModal,
+  hasSeenOnboarding,
+} from "./OnboardingModal";
 import { Icon } from "./Icon";
 
 type Props = {
@@ -51,6 +55,7 @@ export function AlbumApp({
   const [loginNudge, setLoginNudge] = useState(0);
   const [authBanner, setAuthBanner] = useState<string | null>(null);
   const [showCelebration, setShowCelebration] = useState(false);
+  const [onboardingOpen, setOnboardingOpen] = useState(false);
 
   const userRef = useRef(user);
   userRef.current = user;
@@ -77,6 +82,16 @@ export function AlbumApp({
     if (Object.keys(cached).length === 0) return;
     setClaims((prev) => mergeClaims(cached, prev));
   }, [demoMode, initialUser?.id]);
+
+  useEffect(() => {
+    if (demoMode || user) {
+      setOnboardingOpen(false);
+      return;
+    }
+    if (!hasSeenOnboarding()) {
+      setOnboardingOpen(true);
+    }
+  }, [demoMode, user]);
 
   useEffect(() => {
     if (demoMode) return;
@@ -312,6 +327,12 @@ export function AlbumApp({
           onClose={() => setShowCelebration(false)}
         />
       )}
+
+      <OnboardingModal
+        open={onboardingOpen && !isLoggedIn}
+        onDismiss={() => setOnboardingOpen(false)}
+        onCreateAccount={() => setLoginNudge((n) => n + 1)}
+      />
     </SiteShell>
   );
 }
